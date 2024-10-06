@@ -1103,45 +1103,101 @@ export function AiServiceComparison() {
                   <CardHeader>
                     <CardTitle className="text-xl">利用可能なモデル</CardTitle>
                     <CardDescription>
-                      使用したいモデルを選択してください
+                      使用したいモデルを選択し、予想使用量を入力してください
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <ScrollArea className="h-[400px] pr-4">
+                    <ScrollArea className="h-[600px] pr-4">
                       {currentService?.models.map((model) => {
                         const serviceSelection = selectedServices.find(
                           (s) => s.service.id === currentService?.id
                         );
-                        const isSelected =
-                          serviceSelection?.selectedModels.some(
+                        const selectedModel =
+                          serviceSelection?.selectedModels.find(
                             (m) => m.id === model.id
-                          ) || false;
+                          );
+                        const isSelected = !!selectedModel;
+
                         return (
                           <div
                             key={model.id}
-                            className="flex items-center space-x-4 mb-6 p-4 bg-gray-50 rounded-lg"
+                            className="mb-6 p-4 bg-gray-50 rounded-lg"
                           >
-                            <Checkbox
-                              id={`model-${model.id}`}
-                              checked={isSelected}
-                              onCheckedChange={() =>
-                                handleModelToggle(model.id)
-                              }
-                            />
-                            <div className="grid gap-1.5 leading-none flex-grow">
-                              <Label
-                                htmlFor={`model-${model.id}`}
-                                className="text-lg font-medium"
-                              >
-                                {model.name}
-                              </Label>
-                              <p className="text-sm text-gray-600">
-                                入力: ${model.inputPrice.toFixed(5)}/1Kトークン
-                                | 出力: ${model.outputPrice.toFixed(5)}
-                                /1Kトークン | 最大:{" "}
-                                {model.maxTokens.toLocaleString()}トークン
-                              </p>
+                            <div className="flex items-center space-x-4 mb-4">
+                              <Checkbox
+                                id={`model-${model.id}`}
+                                checked={isSelected}
+                                onCheckedChange={() =>
+                                  handleModelToggle(model.id)
+                                }
+                                className="bg-white"
+                              />
+                              <div className="grid gap-1.5 leading-none flex-grow">
+                                <Label
+                                  htmlFor={`model-${model.id}`}
+                                  className="text-lg font-medium"
+                                >
+                                  {model.name}
+                                </Label>
+                                <p className="text-sm text-gray-600">
+                                  入力: ${model.inputPrice.toFixed(5)}
+                                  /1Kトークン | 出力: $
+                                  {model.outputPrice.toFixed(5)}/1Kトークン |
+                                  最大: {model.maxTokens.toLocaleString()}
+                                  トークン
+                                </p>
+                              </div>
                             </div>
+                            {isSelected && (
+                              <div className="mt-4 pl-8">
+                                <div className="flex space-x-4">
+                                  <div className="flex-1">
+                                    <Label
+                                      htmlFor={`input-tokens-${model.id}`}
+                                      className="mb-2 block"
+                                    >
+                                      入力トークン数
+                                    </Label>
+                                    <Input
+                                      id={`input-tokens-${model.id}`}
+                                      type="text"
+                                      pattern="^[1-9][0-9]*$"
+                                      value={selectedModel.inputTokens}
+                                      onChange={(e) =>
+                                        handleTokenChange(
+                                          model.id,
+                                          "input",
+                                          parseInt(e.target.value) || 0
+                                        )
+                                      }
+                                      className="w-full bg-white"
+                                    />
+                                  </div>
+                                  <div className="flex-1">
+                                    <Label
+                                      htmlFor={`output-tokens-${model.id}`}
+                                      className="mb-2 block"
+                                    >
+                                      出力トークン数
+                                    </Label>
+                                    <Input
+                                      id={`output-tokens-${model.id}`}
+                                      type="text"
+                                      pattern="^[1-9][0-9]*$"
+                                      value={selectedModel.outputTokens}
+                                      onChange={(e) =>
+                                        handleTokenChange(
+                                          model.id,
+                                          "output",
+                                          parseInt(e.target.value) || 0
+                                        )
+                                      }
+                                      className="w-full bg-white"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         );
                       })}
@@ -1150,86 +1206,6 @@ export function AiServiceComparison() {
                 </Card>
               </TabsContent>
             </Tabs>
-
-            {selectedServices.some(
-              (s) =>
-                s.service.id === currentService?.id &&
-                s.selectedModels.length > 0
-            ) && (
-              <Card className="mb-6">
-                <CardHeader>
-                  <CardTitle className="text-xl">トークン数入力</CardTitle>
-                  <CardDescription>
-                    各モデルの予想使用量を入力してください
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {currentService?.models.map((model) => {
-                    const serviceSelection = selectedServices.find(
-                      (s) => s.service.id === currentService?.id
-                    );
-                    const selectedModel = serviceSelection?.selectedModels.find(
-                      (m) => m.id === model.id
-                    );
-                    if (!selectedModel) return null;
-                    return (
-                      <div
-                        key={model.id}
-                        className="mb-6 p-4 bg-gray-50 rounded-lg"
-                      >
-                        <h4 className="font-semibold mb-4 text-lg">
-                          {model.name}
-                        </h4>
-                        <div className="flex space-x-4">
-                          <div className="flex-1">
-                            <Label
-                              htmlFor={`input-tokens-${model.id}`}
-                              className="mb-2 block"
-                            >
-                              入力トークン数
-                            </Label>
-                            <Input
-                              id={`input-tokens-${model.id}`}
-                              type="number"
-                              value={selectedModel.inputTokens}
-                              onChange={(e) =>
-                                handleTokenChange(
-                                  model.id,
-                                  "input",
-                                  parseInt(e.target.value) || 0
-                                )
-                              }
-                              className="w-full"
-                            />
-                          </div>
-                          <div className="flex-1">
-                            <Label
-                              htmlFor={`output-tokens-${model.id}`}
-                              className="mb-2 block"
-                            >
-                              出力トークン数
-                            </Label>
-                            <Input
-                              id={`output-tokens-${model.id}`}
-                              type="number"
-                              value={selectedModel.outputTokens}
-                              onChange={(e) =>
-                                handleTokenChange(
-                                  model.id,
-                                  "output",
-                                  parseInt(e.target.value) || 0
-                                )
-                              }
-                              className="w-full"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </CardContent>
-              </Card>
-            )}
           </div>
         ) : (
           <>
