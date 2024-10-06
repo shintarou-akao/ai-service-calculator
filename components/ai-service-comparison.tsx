@@ -1191,7 +1191,7 @@ export function AiServiceComparison() {
                   placeholder="サービス名または提供元で検索..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 py-2 w-full"
+                  className="pl-10 py-2 w-full bg-white border-2 border-gray-300 focus:border-gray-400 focus:ring-2 focus:ring-gray-200 rounded-lg shadow-sm transition-all duration-200 ease-in-out"
                 />
               </div>
             </div>
