@@ -836,7 +836,13 @@ export function AiServiceComparison() {
                 onClick={handleHomeClick}
                 className="text-2xl sm:text-3xl font-bold text-gray-800 hover:text-gray-600 transition-colors"
               >
-                AI Service Calculator
+                <Image
+                  src="/images/logos/logo.png"
+                  alt="AI Service Calculator"
+                  width={240}
+                  height={100}
+                  className="w-[180px] sm:w-[240px] h-auto"
+                />
               </Link>
             </h1>
             <div className="w-full sm:w-auto">
