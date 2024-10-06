@@ -42,6 +42,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import React from "react";
+import Link from "next/link";
 
 type AIModel = {
   id: string;
@@ -215,10 +216,12 @@ export function AiServiceComparison() {
   const [totalCost, setTotalCost] = useState(0);
   const [isBreakdownOpen, setIsBreakdownOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentView, setCurrentView] = useState<"list" | "detail">("list");
 
   const handleServiceSelect = (service: AIService) => {
     try {
       setCurrentService(service);
+      setCurrentView("detail");
       if (!selectedServices.some((s) => s.service.id === service.id)) {
         setSelectedServices((prev) => [
           ...prev,
@@ -687,11 +690,25 @@ export function AiServiceComparison() {
     </Dialog>
   );
 
+  const handleHomeClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    if (currentView === "detail") {
+      setCurrentService(null);
+      setCurrentView("list");
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       <header className="bg-white shadow-md p-6">
         <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-gray-800">AI サービス比較</h1>
+          <Link
+            href="/"
+            onClick={handleHomeClick}
+            className="text-3xl font-bold text-gray-800 hover:text-gray-600 transition-colors"
+          >
+            AI Service Calculator
+          </Link>
           <div className="text-right">
             <div className="flex items-center space-x-4">
               <div>
@@ -727,10 +744,13 @@ export function AiServiceComparison() {
           </Alert>
         )}
 
-        {currentService ? (
+        {currentView === "detail" ? (
           <div>
             <Button
-              onClick={() => setCurrentService(null)}
+              onClick={() => {
+                setCurrentService(null);
+                setCurrentView("list");
+              }}
               className="mb-6"
               variant="ghost"
             >
@@ -741,24 +761,24 @@ export function AiServiceComparison() {
             <Card className="mb-6">
               <CardHeader className="flex flex-row items-center gap-4">
                 <Image
-                  src={currentService.logoUrl}
-                  alt={`${currentService.name} logo`}
+                  src={currentService?.logoUrl || ""}
+                  alt={`${currentService?.name} logo`}
                   width={80}
                   height={80}
                   className="rounded-full"
                 />
                 <div>
                   <CardTitle className="text-2xl">
-                    {currentService.name}
+                    {currentService?.name}
                   </CardTitle>
                   <CardDescription className="text-lg text-gray-600">
-                    {currentService.provider}
+                    {currentService?.provider}
                   </CardDescription>
                 </div>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-700 text-lg">
-                  {currentService.description}
+                  {currentService?.description}
                 </p>
               </CardContent>
             </Card>
@@ -778,9 +798,9 @@ export function AiServiceComparison() {
                   </CardHeader>
                   <CardContent>
                     <ScrollArea className="h-[400px] pr-4">
-                      {currentService.models.map((model) => {
+                      {currentService?.models.map((model) => {
                         const serviceSelection = selectedServices.find(
-                          (s) => s.service.id === currentService.id
+                          (s) => s.service.id === currentService?.id
                         );
                         const isSelected =
                           serviceSelection?.selectedModels.some(
@@ -833,9 +853,9 @@ export function AiServiceComparison() {
                         <h3 className="text-lg font-semibold mb-4 text-gray-800">
                           月額プラン
                         </h3>
-                        {currentService.plans.map((plan) => {
+                        {currentService?.plans.map((plan) => {
                           const serviceSelection = selectedServices.find(
-                            (s) => s.service.id === currentService.id
+                            (s) => s.service.id === currentService?.id
                           );
                           const selectedPlan =
                             serviceSelection?.selectedPlans.find(
@@ -903,9 +923,9 @@ export function AiServiceComparison() {
                         <h3 className="text-lg font-semibold mb-4 text-gray-800">
                           年額プラン
                         </h3>
-                        {currentService.plans.map((plan) => {
+                        {currentService?.plans.map((plan) => {
                           const serviceSelection = selectedServices.find(
-                            (s) => s.service.id === currentService.id
+                            (s) => s.service.id === currentService?.id
                           );
                           const selectedPlan =
                             serviceSelection?.selectedPlans.find(
@@ -978,7 +998,7 @@ export function AiServiceComparison() {
 
             {selectedServices.some(
               (s) =>
-                s.service.id === currentService.id &&
+                s.service.id === currentService?.id &&
                 s.selectedModels.length > 0
             ) && (
               <Card className="mb-6">
@@ -989,9 +1009,9 @@ export function AiServiceComparison() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {currentService.models.map((model) => {
+                  {currentService?.models.map((model) => {
                     const serviceSelection = selectedServices.find(
-                      (s) => s.service.id === currentService.id
+                      (s) => s.service.id === currentService?.id
                     );
                     const selectedModel = serviceSelection?.selectedModels.find(
                       (m) => m.id === model.id
