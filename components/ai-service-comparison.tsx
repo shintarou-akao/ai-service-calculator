@@ -29,6 +29,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Image from "next/image";
@@ -40,9 +41,12 @@ import {
   Trash2,
   BarChart2,
   AlertTriangle,
+  Share2,
 } from "lucide-react";
 import React from "react";
 import Link from "next/link";
+import { useToast } from "@/components/ui/use-toast";
+import { Toaster } from "@/components/ui/toaster";
 
 type AIModel = {
   id: string;
@@ -87,6 +91,21 @@ type ServiceSelection = {
   selectedModels: ModelSelection[];
   selectedPlans: PlanSelection[];
 };
+
+// 新しい型定義を追加
+type EncodedState = {
+  id: string;
+  models: {
+    id: string;
+    input: number;
+    output: number;
+  }[];
+  plans: {
+    id: string;
+    quantity: number;
+    cycle: "monthly" | "yearly";
+  }[];
+}[];
 
 const aiServices: AIService[] = [
   {
@@ -217,6 +236,8 @@ export function AiServiceComparison() {
   const [isBreakdownOpen, setIsBreakdownOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<"list" | "detail">("list");
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const handleServiceSelect = (service: AIService) => {
     try {
@@ -698,6 +719,75 @@ export function AiServiceComparison() {
     }
   };
 
+  const encodeState = () => {
+    const state = activeServiceSelections.map((s) => ({
+      id: s.service.id,
+      models: s.selectedModels.map((m) => ({
+        id: m.id,
+        input: m.inputTokens,
+        output: m.outputTokens,
+      })),
+      plans: s.selectedPlans.map((p) => ({
+        id: p.id,
+        quantity: p.quantity,
+        cycle: p.billingCycle,
+      })),
+    }));
+    return encodeURIComponent(JSON.stringify(state));
+  };
+
+  const decodeState = (encodedState: string): ServiceSelection[] => {
+    try {
+      const state: EncodedState = JSON.parse(decodeURIComponent(encodedState));
+      return state.map((s) => ({
+        service: aiServices.find((service) => service.id === s.id)!,
+        selectedModels: s.models.map((m) => ({
+          id: m.id,
+          inputTokens: m.input,
+          outputTokens: m.output,
+        })),
+        selectedPlans: s.plans.map((p) => ({
+          id: p.id,
+          quantity: p.quantity,
+          billingCycle: p.cycle,
+        })),
+      }));
+    } catch (error) {
+      console.error("Failed to decode state:", error);
+      return [];
+    }
+  };
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const stateParam = urlParams.get("state");
+    if (stateParam) {
+      const decodedState = decodeState(stateParam);
+      setSelectedServices(decodedState);
+    }
+  }, []);
+
+  const handleShareClick = () => {
+    const baseUrl = window.location.origin + window.location.pathname;
+    const encodedState = encodeState();
+    const url = `${baseUrl}?state=${encodedState}`;
+    setShareUrl(url);
+  };
+
+  // 選択されているサービスがあるかどうかを確認する関数
+  const hasSelectedServices = useMemo(() => {
+    return activeServiceSelections.length > 0;
+  }, [activeServiceSelections]);
+
+  // URLをコピーするボタンのonClickハンドラを更新
+  const handleCopyUrl = () => {
+    navigator.clipboard.writeText(shareUrl || "");
+    toast({
+      title: "URLをコピーしました",
+      description: "共有URLがクリップボードにコピーされました。",
+    });
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       <header className="bg-white shadow-md p-6">
@@ -730,7 +820,18 @@ export function AiServiceComparison() {
                 </p>
               </div>
             </div>
-            <CostBreakdown />
+            <div className="flex items-center justify-end space-x-2 mt-2">
+              <CostBreakdown />
+              <Button
+                onClick={handleShareClick}
+                variant="outline"
+                className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
+                disabled={!hasSelectedServices}
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                共有
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -1125,6 +1226,23 @@ export function AiServiceComparison() {
           </>
         )}
       </main>
+
+      <Dialog open={!!shareUrl} onOpenChange={() => setShareUrl(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>共有URL</DialogTitle>
+            <DialogDescription>
+              以下のURLを共有して、現在の選択状態を他の人と共有できます。
+            </DialogDescription>
+          </DialogHeader>
+          <Input value={shareUrl || ""} readOnly />
+          <DialogFooter>
+            <Button onClick={handleCopyUrl}>URLをコピー</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Toaster />
     </div>
   );
 }
