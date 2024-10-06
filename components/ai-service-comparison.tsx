@@ -47,6 +47,7 @@ import React from "react";
 import Link from "next/link";
 import { useToast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
+import { cn } from "@/lib/utils";
 
 type AIModel = {
   id: string;
@@ -819,7 +820,7 @@ export function AiServiceComparison() {
   const handleCopyUrl = () => {
     navigator.clipboard.writeText(shareUrl || "");
     toast({
-      title: "URLをコピーしました",
+      title: "URLをコピーしまし",
       description: "共有URLがクリップボードにコピーされまた。",
     });
   };
@@ -926,63 +927,23 @@ export function AiServiceComparison() {
               </CardContent>
             </Card>
 
-            <Tabs defaultValue="models" className="mb-6">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="models">利用可能なモデル</TabsTrigger>
-                <TabsTrigger value="plans">利用可能なプラン</TabsTrigger>
+            <Tabs defaultValue="plans" className="mb-6">
+              <TabsList className="flex w-full border-b border-gray-200">
+                {["plans", "models"].map((tab) => (
+                  <TabsTrigger
+                    key={tab}
+                    value={tab}
+                    className={cn(
+                      "flex-1 px-4 py-2 text-sm font-medium text-gray-500 transition-all",
+                      "hover:text-gray-700 focus:outline-none",
+                      "data-[state=active]:text-primary data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                    )}
+                  >
+                    {tab === "plans" ? "利用可能なプラン" : "利用可能なモデル"}
+                  </TabsTrigger>
+                ))}
               </TabsList>
-              <TabsContent value="models">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-xl">利用可能なモデル</CardTitle>
-                    <CardDescription>
-                      使用したいモデルを選択してください
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ScrollArea className="h-[400px] pr-4">
-                      {currentService?.models.map((model) => {
-                        const serviceSelection = selectedServices.find(
-                          (s) => s.service.id === currentService?.id
-                        );
-                        const isSelected =
-                          serviceSelection?.selectedModels.some(
-                            (m) => m.id === model.id
-                          ) || false;
-                        return (
-                          <div
-                            key={model.id}
-                            className="flex items-center space-x-4 mb-6 p-4 bg-gray-50 rounded-lg"
-                          >
-                            <Checkbox
-                              id={`model-${model.id}`}
-                              checked={isSelected}
-                              onCheckedChange={() =>
-                                handleModelToggle(model.id)
-                              }
-                            />
-                            <div className="grid gap-1.5 leading-none flex-grow">
-                              <Label
-                                htmlFor={`model-${model.id}`}
-                                className="text-lg font-medium"
-                              >
-                                {model.name}
-                              </Label>
-                              <p className="text-sm text-gray-600">
-                                入力: ${model.inputPrice.toFixed(5)}/1Kトークン
-                                | 出力: ${model.outputPrice.toFixed(5)}
-                                /1Kトークン | 最大:{" "}
-                                {model.maxTokens.toLocaleString()}トークン
-                              </p>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </ScrollArea>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              <TabsContent value="plans">
+              <TabsContent value="plans" className="pt-4">
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-xl">利用可能なプラン</CardTitle>
@@ -1134,6 +1095,57 @@ export function AiServiceComparison() {
                         })}
                       </div>
                     </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              <TabsContent value="models" className="pt-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-xl">利用可能なモデル</CardTitle>
+                    <CardDescription>
+                      使用したいモデルを選択してください
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ScrollArea className="h-[400px] pr-4">
+                      {currentService?.models.map((model) => {
+                        const serviceSelection = selectedServices.find(
+                          (s) => s.service.id === currentService?.id
+                        );
+                        const isSelected =
+                          serviceSelection?.selectedModels.some(
+                            (m) => m.id === model.id
+                          ) || false;
+                        return (
+                          <div
+                            key={model.id}
+                            className="flex items-center space-x-4 mb-6 p-4 bg-gray-50 rounded-lg"
+                          >
+                            <Checkbox
+                              id={`model-${model.id}`}
+                              checked={isSelected}
+                              onCheckedChange={() =>
+                                handleModelToggle(model.id)
+                              }
+                            />
+                            <div className="grid gap-1.5 leading-none flex-grow">
+                              <Label
+                                htmlFor={`model-${model.id}`}
+                                className="text-lg font-medium"
+                              >
+                                {model.name}
+                              </Label>
+                              <p className="text-sm text-gray-600">
+                                入力: ${model.inputPrice.toFixed(5)}/1Kトークン
+                                | 出力: ${model.outputPrice.toFixed(5)}
+                                /1Kトークン | 最大:{" "}
+                                {model.maxTokens.toLocaleString()}トークン
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </ScrollArea>
                   </CardContent>
                 </Card>
               </TabsContent>
