@@ -93,7 +93,7 @@ const aiServices: AIService[] = [
     name: "ChatGPT",
     provider: "OpenAI",
     description: "高度な言語モデルを提供する先進的なAIプラットフォーム",
-    logoUrl: "/placeholder.svg?height=100&width=100",
+    logoUrl: "/images/logos/chatgpt.png",
     models: [
       {
         id: "gpt-3.5-turbo",
@@ -139,7 +139,7 @@ const aiServices: AIService[] = [
     name: "Claude",
     provider: "Anthropic",
     description: "倫理的で安全なAI開発に焦点を当てた次世代言語モデル",
-    logoUrl: "/placeholder.svg?height=100&width=100",
+    logoUrl: "/images/logos/claude.png",
     models: [
       {
         id: "claude-2",
@@ -171,7 +171,7 @@ const aiServices: AIService[] = [
     name: "Gemini",
     provider: "Google",
     description: "Googleが開発した最新のマルチモーダルAIモデル",
-    logoUrl: "/placeholder.svg?height=100&width=100",
+    logoUrl: "/images/logos/gemini.png",
     models: [
       {
         id: "gemini-pro",
