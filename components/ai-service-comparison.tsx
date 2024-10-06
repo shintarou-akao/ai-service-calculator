@@ -496,216 +496,252 @@ export function AiServiceComparison() {
           料金内訳を確認
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-[95vw] w-full md:max-w-4xl h-[80vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold mb-4">
+          <DialogTitle className="text-xl md:text-2xl font-bold mb-4">
             料金内訳
           </DialogTitle>
           <DialogDescription>
             選択したサービス、モデル、プランの詳細な料金内訳
           </DialogDescription>
         </DialogHeader>
-        {activeServiceSelections.map((serviceSelection) => (
-          <div
-            key={serviceSelection.service.id}
-            className="mb-8 bg-white p-6 rounded-lg shadow-md"
-          >
-            <h3 className="text-xl font-semibold mb-4 text-gray-800">
-              {serviceSelection.service.name}
-            </h3>
+        <div className="flex-grow overflow-y-auto">
+          <div className="space-y-6">
+            {activeServiceSelections.map((serviceSelection) => (
+              <div
+                key={serviceSelection.service.id}
+                className="bg-white p-4 rounded-lg shadow-md"
+              >
+                <h3 className="text-lg md:text-xl font-semibold mb-4 text-gray-800">
+                  {serviceSelection.service.name}
+                </h3>
 
-            {serviceSelection.selectedModels.filter(
-              (model) => model.inputTokens > 0 || model.outputTokens > 0
-            ).length > 0 && (
-              <div className="mb-6">
-                <h4 className="text-lg font-medium mb-3 text-gray-700">
-                  選択されたモデル
-                </h4>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="text-left">モデル名</TableHead>
-                      <TableHead className="text-right">
-                        入力トークン数
-                      </TableHead>
-                      <TableHead className="text-right">
-                        出力トークン数
-                      </TableHead>
-                      <TableHead className="text-right">入力コスト</TableHead>
-                      <TableHead className="text-right">出力コスト</TableHead>
-                      <TableHead className="text-right">合計コスト</TableHead>
-                      <TableHead className="text-center">操作</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {serviceSelection.selectedModels
-                      .filter(
-                        (model) =>
-                          model.inputTokens > 0 || model.outputTokens > 0
-                      )
-                      .map((model) => {
-                        const modelInfo = serviceSelection.service.models.find(
-                          (m) => m.id === model.id
-                        );
-                        if (!modelInfo) return null;
-                        const inputCost =
-                          (model.inputTokens * modelInfo.inputPrice) / 1000;
-                        const outputCost =
-                          (model.outputTokens * modelInfo.outputPrice) / 1000;
-                        const totalCost = inputCost + outputCost;
-                        return (
-                          <TableRow key={model.id}>
-                            <TableCell className="font-medium">
-                              {modelInfo.name}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {model.inputTokens.toLocaleString()}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {model.outputTokens.toLocaleString()}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              ${inputCost.toFixed(2)}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              ${outputCost.toFixed(2)}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              ${totalCost.toFixed(2)}
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() =>
-                                  handleRemoveModel(
-                                    serviceSelection.service.id,
-                                    model.id
-                                  )
-                                }
-                                className="text-red-600 hover:text-red-800 hover:bg-red-100"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                                <span className="sr-only">
-                                  {modelInfo.name}を削除
-                                </span>
-                              </Button>
-                            </TableCell>
+                {serviceSelection.selectedModels.filter(
+                  (model) => model.inputTokens > 0 || model.outputTokens > 0
+                ).length > 0 && (
+                  <div className="mb-6">
+                    <h4 className="text-base md:text-lg font-medium mb-3 text-gray-700">
+                      選択されたモデル
+                    </h4>
+                    <div className="overflow-x-auto">
+                      <Table className="w-[800px] md:w-full">
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="w-1/4">モデル名</TableHead>
+                            <TableHead className="w-1/8 text-right">
+                              入力トークン数
+                            </TableHead>
+                            <TableHead className="w-1/8 text-right">
+                              出力トークン数
+                            </TableHead>
+                            <TableHead className="w-1/8 text-right">
+                              入力コスト
+                            </TableHead>
+                            <TableHead className="w-1/8 text-right">
+                              出力コスト
+                            </TableHead>
+                            <TableHead className="w-1/8 text-right">
+                              合計コスト
+                            </TableHead>
+                            <TableHead className="w-1/8 text-center">
+                              操作
+                            </TableHead>
                           </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {serviceSelection.selectedModels
+                            .filter(
+                              (model) =>
+                                model.inputTokens > 0 || model.outputTokens > 0
+                            )
+                            .map((model) => {
+                              const modelInfo =
+                                serviceSelection.service.models.find(
+                                  (m) => m.id === model.id
+                                );
+                              if (!modelInfo) return null;
+                              const inputCost =
+                                (model.inputTokens * modelInfo.inputPrice) /
+                                1000;
+                              const outputCost =
+                                (model.outputTokens * modelInfo.outputPrice) /
+                                1000;
+                              const totalCost = inputCost + outputCost;
+                              return (
+                                <TableRow key={model.id}>
+                                  <TableCell className="font-medium">
+                                    {modelInfo.name}
+                                  </TableCell>
+                                  <TableCell className="text-right">
+                                    {model.inputTokens.toLocaleString()}
+                                  </TableCell>
+                                  <TableCell className="text-right">
+                                    {model.outputTokens.toLocaleString()}
+                                  </TableCell>
+                                  <TableCell className="text-right">
+                                    ${inputCost.toFixed(2)}
+                                  </TableCell>
+                                  <TableCell className="text-right">
+                                    ${outputCost.toFixed(2)}
+                                  </TableCell>
+                                  <TableCell className="text-right">
+                                    ${totalCost.toFixed(2)}
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() =>
+                                        handleRemoveModel(
+                                          serviceSelection.service.id,
+                                          model.id
+                                        )
+                                      }
+                                      className="text-red-600 hover:text-red-800 hover:bg-red-100"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                      <span className="sr-only">
+                                        {modelInfo.name}を削除
+                                      </span>
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+                )}
+
+                {serviceSelection.selectedPlans.length > 0 && (
+                  <div className="mb-6">
+                    <h4 className="text-base md:text-lg font-medium mb-3 text-gray-700">
+                      選択されたプラン
+                    </h4>
+                    <div className="overflow-x-auto">
+                      <Table className="w-[800px] md:w-full">
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="w-1/4">プラン名</TableHead>
+                            <TableHead className="w-1/6">
+                              請求サイクル
+                            </TableHead>
+                            <TableHead className="w-1/8 text-right">
+                              数量
+                            </TableHead>
+                            <TableHead className="w-1/6 text-right">
+                              単価
+                            </TableHead>
+                            <TableHead className="w-1/6 text-right">
+                              合計コスト（月額）
+                            </TableHead>
+                            <TableHead className="w-1/8 text-center">
+                              操作
+                            </TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {serviceSelection.selectedPlans.map(
+                            (planSelection) => {
+                              const plan = serviceSelection.service.plans.find(
+                                (p) => p.id === planSelection.id
+                              );
+                              if (!plan) return null;
+                              const price =
+                                planSelection.billingCycle === "monthly"
+                                  ? plan.monthlyPrice
+                                  : plan.yearlyPrice / 12;
+                              const totalCost = price * planSelection.quantity;
+                              return (
+                                <TableRow
+                                  key={`${plan.id}-${planSelection.billingCycle}`}
+                                >
+                                  <TableCell className="font-medium">
+                                    {plan.name}
+                                  </TableCell>
+                                  <TableCell>
+                                    {planSelection.billingCycle === "monthly"
+                                      ? "月額"
+                                      : "年額"}
+                                  </TableCell>
+                                  <TableCell className="text-right">
+                                    {planSelection.quantity}
+                                  </TableCell>
+                                  <TableCell className="text-right">
+                                    ${price.toFixed(2)}/月
+                                  </TableCell>
+                                  <TableCell className="text-right">
+                                    ${totalCost.toFixed(2)}/月
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() =>
+                                        handleRemovePlan(
+                                          serviceSelection.service.id,
+                                          plan.id,
+                                          planSelection.billingCycle
+                                        )
+                                      }
+                                      className="text-red-600 hover:text-red-800 hover:bg-red-100"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                      <span className="sr-only">
+                                        {plan.name}を削除
+                                      </span>
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            }
+                          )}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+                )}
+
+                <div className="text-right font-semibold text-base md:text-lg text-gray-800">
+                  サービス小計: $
+                  {(
+                    serviceSelection.selectedModels.reduce((sum, model) => {
+                      const modelInfo = serviceSelection.service.models.find(
+                        (m) => m.id === model.id
+                      );
+                      if (!modelInfo) return sum;
+                      const inputCost =
+                        (model.inputTokens * modelInfo.inputPrice) / 1000;
+                      const outputCost =
+                        (model.outputTokens * modelInfo.outputPrice) / 1000;
+                      return sum + inputCost + outputCost;
+                    }, 0) +
+                    serviceSelection.selectedPlans.reduce(
+                      (sum, planSelection) => {
+                        const plan = serviceSelection.service.plans.find(
+                          (p) => p.id === planSelection.id
                         );
-                      })}
-                  </TableBody>
-                </Table>
+                        if (!plan) return sum;
+                        const price =
+                          planSelection.billingCycle === "monthly"
+                            ? plan.monthlyPrice
+                            : plan.yearlyPrice / 12;
+                        return sum + price * planSelection.quantity;
+                      },
+                      0
+                    )
+                  ).toFixed(2)}
+                  /月
+                </div>
               </div>
-            )}
-
-            {serviceSelection.selectedPlans.length > 0 && (
-              <div className="mb-6">
-                <h4 className="text-lg font-medium mb-3 text-gray-700">
-                  選択されたプラン
-                </h4>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="text-left">プラン名</TableHead>
-                      <TableHead className="text-left">請求サイクル</TableHead>
-                      <TableHead className="text-right">数量</TableHead>
-                      <TableHead className="text-right">単価</TableHead>
-                      <TableHead className="text-right">
-                        合計コスト（月額）
-                      </TableHead>
-                      <TableHead className="text-center">操作</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {serviceSelection.selectedPlans.map((planSelection) => {
-                      const plan = serviceSelection.service.plans.find(
-                        (p) => p.id === planSelection.id
-                      );
-                      if (!plan) return null;
-                      const price =
-                        planSelection.billingCycle === "monthly"
-                          ? plan.monthlyPrice
-                          : plan.yearlyPrice / 12;
-                      const totalCost = price * planSelection.quantity;
-                      return (
-                        <TableRow
-                          key={`${plan.id}-${planSelection.billingCycle}`}
-                        >
-                          <TableCell className="font-medium">
-                            {plan.name}
-                          </TableCell>
-                          <TableCell>
-                            {planSelection.billingCycle === "monthly"
-                              ? "月額"
-                              : "年額"}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {planSelection.quantity}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            ${price.toFixed(2)}/月
-                          </TableCell>
-                          <TableCell className="text-right">
-                            ${totalCost.toFixed(2)}/月
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() =>
-                                handleRemovePlan(
-                                  serviceSelection.service.id,
-                                  plan.id,
-                                  planSelection.billingCycle
-                                )
-                              }
-                              className="text-red-600 hover:text-red-800 hover:bg-red-100"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                              <span className="sr-only">{plan.name}を削除</span>
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-
-            <div className="text-right font-semibold text-lg text-gray-800">
-              サービス小計: $
-              {(
-                serviceSelection.selectedModels.reduce((sum, model) => {
-                  const modelInfo = serviceSelection.service.models.find(
-                    (m) => m.id === model.id
-                  );
-                  if (!modelInfo) return sum;
-                  const inputCost =
-                    (model.inputTokens * modelInfo.inputPrice) / 1000;
-                  const outputCost =
-                    (model.outputTokens * modelInfo.outputPrice) / 1000;
-                  return sum + inputCost + outputCost;
-                }, 0) +
-                serviceSelection.selectedPlans.reduce((sum, planSelection) => {
-                  const plan = serviceSelection.service.plans.find(
-                    (p) => p.id === planSelection.id
-                  );
-                  if (!plan) return sum;
-                  const price =
-                    planSelection.billingCycle === "monthly"
-                      ? plan.monthlyPrice
-                      : plan.yearlyPrice / 12;
-                  return sum + price * planSelection.quantity;
-                }, 0)
-              ).toFixed(2)}
-              /月
-            </div>
+            ))}
           </div>
-        ))}
-        <div className="text-right text-2xl font-bold mt-6 text-gray-800">
-          総合計: ${totalCost.toFixed(2)}/月
+        </div>
+        <div className="mt-6 pt-4 border-t border-gray-200">
+          <div className="text-right text-xl md:text-2xl font-bold text-gray-800">
+            総合計: ${totalCost.toFixed(2)}/月
+          </div>
         </div>
       </DialogContent>
     </Dialog>
@@ -784,53 +820,59 @@ export function AiServiceComparison() {
     navigator.clipboard.writeText(shareUrl || "");
     toast({
       title: "URLをコピーしました",
-      description: "共有URLがクリップボードにコピーされました。",
+      description: "共有URLがクリップボードにコピーされまた。",
     });
   };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
-      <header className="bg-white shadow-md p-6">
-        <div className="container mx-auto flex justify-between items-center">
-          <Link
-            href="/"
-            onClick={handleHomeClick}
-            className="text-3xl font-bold text-gray-800 hover:text-gray-600 transition-colors"
-          >
-            AI Service Calculator
-          </Link>
-          <div className="text-right">
-            <div className="flex items-center space-x-4">
-              <div>
-                <p className="text-sm text-gray-600">API利用料</p>
-                <p className="text-lg font-semibold text-gray-800">
-                  ${totalApiCost.toFixed(2)}/月
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">サービス利用料</p>
-                <p className="text-lg font-semibold text-gray-800">
-                  ${totalPlanCost.toFixed(2)}/月
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">総合計</p>
-                <p className="text-2xl font-bold text-gray-800">
-                  ${totalCost.toFixed(2)}/月
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center justify-end space-x-2 mt-2">
-              <CostBreakdown />
-              <Button
-                onClick={handleShareClick}
-                variant="outline"
-                className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
-                disabled={!hasSelectedServices}
+      <header className="bg-white shadow-md p-4 sm:p-6">
+        <div className="container mx-auto">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+            <h1>
+              <Link
+                href="/"
+                onClick={handleHomeClick}
+                className="text-2xl sm:text-3xl font-bold text-gray-800 hover:text-gray-600 transition-colors"
               >
-                <Share2 className="w-4 h-4 mr-2" />
-                共有
-              </Button>
+                AI Service Calculator
+              </Link>
+            </h1>
+            <div className="w-full sm:w-auto">
+              <div className="grid grid-cols-3 gap-2 sm:flex sm:items-center sm:space-x-4">
+                <div>
+                  <p className="text-xs sm:text-sm text-gray-600">API利用料</p>
+                  <p className="text-sm sm:text-lg font-semibold text-gray-800">
+                    ${totalApiCost.toFixed(2)}/月
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs sm:text-sm text-gray-600">
+                    サービス利用料
+                  </p>
+                  <p className="text-sm sm:text-lg font-semibold text-gray-800">
+                    ${totalPlanCost.toFixed(2)}/月
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs sm:text-sm text-gray-600">総合計</p>
+                  <p className="text-base sm:text-2xl font-bold text-gray-800">
+                    ${totalCost.toFixed(2)}/月
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center justify-end space-x-2 mt-2">
+                <CostBreakdown />
+                <Button
+                  onClick={handleShareClick}
+                  variant="outline"
+                  className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow text-xs sm:text-sm"
+                  disabled={!hasSelectedServices}
+                >
+                  <Share2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  共有
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -966,9 +1008,9 @@ export function AiServiceComparison() {
                           return (
                             <div
                               key={`${plan.id}-monthly`}
-                              className="flex items-center space-x-4 mb-6 p-4 bg-gray-50 rounded-lg"
+                              className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6 p-4 bg-gray-50 rounded-lg"
                             >
-                              <div className="grid gap-1.5 leading-none flex-grow">
+                              <div className="grid gap-1.5 leading-none flex-grow w-full sm:w-auto">
                                 <Label
                                   htmlFor={`plan-${plan.id}-monthly`}
                                   className="text-lg font-medium"
@@ -984,7 +1026,7 @@ export function AiServiceComparison() {
                                   ))}
                                 </ul>
                               </div>
-                              <div className="flex items-center space-x-2">
+                              <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
                                 <Button
                                   size="icon"
                                   variant="outline"
@@ -1036,9 +1078,9 @@ export function AiServiceComparison() {
                           return (
                             <div
                               key={`${plan.id}-yearly`}
-                              className="flex items-center space-x-4 mb-6 p-4 bg-gray-50 rounded-lg"
+                              className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6 p-4 bg-gray-50 rounded-lg"
                             >
-                              <div className="grid gap-1.5 leading-none flex-grow">
+                              <div className="grid gap-1.5 leading-none flex-grow w-full sm:w-auto">
                                 <Label
                                   htmlFor={`plan-${plan.id}-yearly`}
                                   className="text-lg font-medium"
@@ -1055,7 +1097,7 @@ export function AiServiceComparison() {
                                   ))}
                                 </ul>
                               </div>
-                              <div className="flex items-center space-x-2">
+                              <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
                                 <Button
                                   size="icon"
                                   variant="outline"
