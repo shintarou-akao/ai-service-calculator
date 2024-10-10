@@ -48,6 +48,7 @@ import React from "react";
 import Link from "next/link";
 import { useToast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import {
   getAIServicesSummary,
@@ -89,6 +90,20 @@ type EncodedState = {
     cycle: "monthly" | "yearly";
   }[];
 }[];
+
+// ServiceSkeletonコンポーネントを再定義
+const ServiceSkeleton = () => (
+  <div className="bg-white p-6 rounded-lg shadow-md space-y-4">
+    <div className="flex items-center space-x-4">
+      <Skeleton className="h-12 w-16 rounded-full" />
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-[200px]" />
+        <Skeleton className="h-4 w-[150px]" />
+      </div>
+    </div>
+    <Skeleton className="h-20 w-full" />
+  </div>
+);
 
 export function AiServiceComparison() {
   const [selectedServices, setSelectedServices] = useState<ServiceSelection[]>(
@@ -374,9 +389,7 @@ export function AiServiceComparison() {
       setTotalPlanCost(planCostSum);
       setTotalCost(apiCostSum + planCostSum);
     } catch (err) {
-      setError(
-        "コストの計算中にエラーが発生しました。もう一度お試しください。"
-      );
+      setError("コトの計算中にエラーが発生しました。もう一度お試しください。");
       console.error("Error calculating costs:", err);
     }
   }, [activeServiceSelections]);
@@ -820,9 +833,28 @@ export function AiServiceComparison() {
           </Alert>
         )}
 
+        <div className="mb-6">
+          <Label htmlFor="search-services" className="sr-only">
+            サービスを検索
+          </Label>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <Input
+              id="search-services"
+              type="text"
+              placeholder="サービス名または提供元で検索..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 py-2 w-full bg-white border-gray-300 focus:border-gray-400 focus:ring-2 focus:ring-gray-200 rounded-lg shadow-sm transition-all duration-200 ease-in-out"
+            />
+          </div>
+        </div>
+
         {isLoading ? (
-          <div className="flex justify-center items-center h-64">
-            <p className="text-lg text-gray-600">データを読み込んでいます...</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, index) => (
+              <ServiceSkeleton key={index} />
+            ))}
           </div>
         ) : currentView === "detail" ? (
           <div>
@@ -839,10 +871,13 @@ export function AiServiceComparison() {
             </Button>
 
             {isLoadingDetails ? (
-              <div className="flex justify-center items-center h-64">
-                <p className="text-lg text-gray-600">
-                  サービスの詳細を読み込んでいます...
-                </p>
+              <div className="space-y-6">
+                <Skeleton className="h-[200px] w-full rounded-lg" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-[300px]" />
+                  <Skeleton className="h-4 w-[250px]" />
+                </div>
+                <Skeleton className="h-[400px] w-full rounded-lg" />
               </div>
             ) : (
               <>
@@ -1066,7 +1101,7 @@ export function AiServiceComparison() {
                                         >
                                           <Plus className="h-4 w-4" />
                                           <span className="sr-only">
-                                            {plan.name}年額プラン��1つ増やす
+                                            {plan.name}年額プラン1つ増やす
                                           </span>
                                         </Button>
                                       </div>
@@ -1133,7 +1168,7 @@ export function AiServiceComparison() {
                                           htmlFor={`input-tokens-${model.id}`}
                                           className="mb-2 block"
                                         >
-                                          入力トークン数
+                                          力トークン
                                         </Label>
                                         <Input
                                           id={`input-tokens-${model.id}`}
@@ -1187,52 +1222,34 @@ export function AiServiceComparison() {
             )}
           </div>
         ) : (
-          <>
-            <div className="mb-6">
-              <Label htmlFor="search-services" className="sr-only">
-                サービスを検索
-              </Label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <Input
-                  id="search-services"
-                  type="text"
-                  placeholder="サービス名または提供元で検索..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 py-2 w-full bg-white border-gray-300 focus:border-gray-400 focus:ring-2 focus:ring-gray-200 rounded-lg shadow-sm transition-all duration-200 ease-in-out"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredServices.map((service) => (
-                <Card
-                  key={service.id}
-                  className="cursor-pointer hover:shadow-lg transition-shadow"
-                  onClick={() => handleServiceSelect(service)}
-                >
-                  <CardHeader className="flex flex-row items-center gap-4">
-                    <Image
-                      src={service.logoPath}
-                      alt={`${service.name} logo`}
-                      width={60}
-                      height={60}
-                      className="rounded-full"
-                    />
-                    <div>
-                      <CardTitle className="text-xl">{service.name}</CardTitle>
-                      <CardDescription className="text-gray-600">
-                        {service.provider}
-                      </CardDescription>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-700">{service.description}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredServices.map((service) => (
+              <Card
+                key={service.id}
+                className="cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => handleServiceSelect(service)}
+              >
+                <CardHeader className="flex flex-row items-center gap-4">
+                  <Image
+                    src={service.logoPath}
+                    alt={`${service.name} logo`}
+                    width={60}
+                    height={60}
+                    className="rounded-full"
+                  />
+                  <div>
+                    <CardTitle className="text-xl">{service.name}</CardTitle>
+                    <CardDescription className="text-gray-600">
+                      {service.provider}
+                    </CardDescription>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-700">{service.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         )}
       </main>
 
