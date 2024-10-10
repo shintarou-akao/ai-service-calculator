@@ -41,11 +41,9 @@ import {
   Trash2,
   BarChart2,
   AlertTriangle,
-  Share2,
   ExternalLink,
 } from "lucide-react";
 import React from "react";
-import Link from "next/link";
 import { useToast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -57,6 +55,7 @@ import {
   AIService,
   AIServiceSummary,
 } from "@/lib/api";
+import { Header } from "@/components/layout/header";
 
 type PlanSelection = {
   id: string;
@@ -656,14 +655,6 @@ export function AiServiceComparison() {
     </Dialog>
   );
 
-  const handleHomeClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    if (currentView === "detail") {
-      setCurrentService(null);
-      setCurrentView("list");
-    }
-  };
-
   const encodeState = () => {
     const state = activeServiceSelections.map((s) => ({
       id: s.service.id,
@@ -766,63 +757,15 @@ export function AiServiceComparison() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
-      <header className="bg-white shadow-md p-4 sm:p-6">
-        <div className="container mx-auto">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
-            <h1>
-              <Link
-                href="/"
-                onClick={handleHomeClick}
-                className="text-2xl sm:text-3xl font-bold text-gray-800 hover:text-gray-600 transition-colors"
-              >
-                <Image
-                  src="/images/logos/logo.png"
-                  alt="AI Service Calculator"
-                  width={240}
-                  height={100}
-                  className="w-[180px] sm:w-[240px] h-auto"
-                />
-              </Link>
-            </h1>
-            <div className="w-full sm:w-auto">
-              <div className="grid grid-cols-3 gap-2 sm:flex sm:items-center sm:space-x-4">
-                <div>
-                  <p className="text-xs sm:text-sm text-gray-600">API利用料</p>
-                  <p className="text-sm sm:text-lg font-semibold text-gray-800">
-                    ${totalApiCost.toFixed(2)}/月
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs sm:text-sm text-gray-600">
-                    サービス利用料
-                  </p>
-                  <p className="text-sm sm:text-lg font-semibold text-gray-800">
-                    ${totalPlanCost.toFixed(2)}/月
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs sm:text-sm text-gray-600">総合計</p>
-                  <p className="text-base sm:text-2xl font-bold text-gray-800">
-                    ${totalCost.toFixed(2)}/月
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center justify-end space-x-2 mt-2">
-                <CostBreakdown />
-                <Button
-                  onClick={handleShareClick}
-                  variant="outline"
-                  className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow text-xs sm:text-sm"
-                  disabled={!hasSelectedServices}
-                >
-                  <Share2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                  共有
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header
+        showCosts={true}
+        totalApiCost={totalApiCost}
+        totalPlanCost={totalPlanCost}
+        totalCost={totalCost}
+        onShareClick={handleShareClick}
+        hasSelectedServices={hasSelectedServices}
+        CostBreakdown={<CostBreakdown />}
+      />
 
       <main className="flex-grow container mx-auto p-6">
         {error && (
