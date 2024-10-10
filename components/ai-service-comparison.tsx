@@ -42,38 +42,20 @@ import {
   BarChart2,
   AlertTriangle,
   Share2,
+  ExternalLink,
 } from "lucide-react";
 import React from "react";
 import Link from "next/link";
 import { useToast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { cn } from "@/lib/utils";
-
-type AIModel = {
-  id: string;
-  name: string;
-  inputPrice: number;
-  outputPrice: number;
-  maxTokens: number;
-};
-
-type AIPlan = {
-  id: string;
-  name: string;
-  monthlyPrice: number;
-  yearlyPrice: number;
-  features: string[];
-};
-
-type AIService = {
-  id: string;
-  name: string;
-  provider: string;
-  description: string;
-  logoUrl: string;
-  models: AIModel[];
-  plans: AIPlan[];
-};
+import {
+  getAIServicesSummary,
+  getAIServiceDetails,
+  AIModel,
+  AIService,
+  AIServiceSummary,
+} from "@/lib/api";
 
 type PlanSelection = {
   id: string;
@@ -108,123 +90,6 @@ type EncodedState = {
   }[];
 }[];
 
-const aiServices: AIService[] = [
-  {
-    id: "openai",
-    name: "ChatGPT",
-    provider: "OpenAI",
-    description: "高度な言語モデルを提供する先進的なAIプラットフォーム",
-    logoUrl: "/images/logos/chatgpt.png",
-    models: [
-      {
-        id: "gpt-3.5-turbo",
-        name: "GPT-3.5 Turbo",
-        inputPrice: 0.0015,
-        outputPrice: 0.002,
-        maxTokens: 4096,
-      },
-      {
-        id: "gpt-4",
-        name: "GPT-4",
-        inputPrice: 0.03,
-        outputPrice: 0.06,
-        maxTokens: 8192,
-      },
-    ],
-    plans: [
-      {
-        id: "basic",
-        name: "Basic",
-        monthlyPrice: 20,
-        yearlyPrice: 200,
-        features: ["GPT-3.5 Turboへのアクセス", "月5Mトークン"],
-      },
-      {
-        id: "pro",
-        name: "Pro",
-        monthlyPrice: 50,
-        yearlyPrice: 500,
-        features: ["GPT-4へのアクセス", "月10Mトークン"],
-      },
-      {
-        id: "team",
-        name: "Team",
-        monthlyPrice: 100,
-        yearlyPrice: 1000,
-        features: ["GPT-4へのアクセス", "月20Mトークン", "チーム管理機能"],
-      },
-    ],
-  },
-  {
-    id: "anthropic",
-    name: "Claude",
-    provider: "Anthropic",
-    description: "倫理的で安全なAI開発に焦点を当てた次世代言語モデル",
-    logoUrl: "/images/logos/claude.png",
-    models: [
-      {
-        id: "claude-2",
-        name: "Claude 2",
-        inputPrice: 0.01102,
-        outputPrice: 0.03268,
-        maxTokens: 100000,
-      },
-    ],
-    plans: [
-      {
-        id: "standard",
-        name: "Standard",
-        monthlyPrice: 30,
-        yearlyPrice: 300,
-        features: ["Claude 2へのアクセス", "月10Mトークン"],
-      },
-      {
-        id: "enterprise",
-        name: "Enterprise",
-        monthlyPrice: 200,
-        yearlyPrice: 2000,
-        features: ["カスタムモデル", "優先サポート", "無制限トークン"],
-      },
-    ],
-  },
-  {
-    id: "google",
-    name: "Gemini",
-    provider: "Google",
-    description: "Googleが開発した最新のマルチモーダルAIモデル",
-    logoUrl: "/images/logos/gemini.png",
-    models: [
-      {
-        id: "gemini-pro",
-        name: "Gemini Pro",
-        inputPrice: 0.00025,
-        outputPrice: 0.0005,
-        maxTokens: 32768,
-      },
-    ],
-    plans: [
-      {
-        id: "starter",
-        name: "Starter",
-        monthlyPrice: 15,
-        yearlyPrice: 150,
-        features: ["Gemini Proへのアクセス", "月5Mトークン"],
-      },
-      {
-        id: "advanced",
-        name: "Advanced",
-        monthlyPrice: 40,
-        yearlyPrice: 400,
-        features: [
-          "Gemini Proへのアクセス",
-          "月15Mトークン",
-          "優先APIアクセス",
-        ],
-      },
-    ],
-  },
-];
-
 export function AiServiceComparison() {
   const [selectedServices, setSelectedServices] = useState<ServiceSelection[]>(
     []
@@ -239,26 +104,56 @@ export function AiServiceComparison() {
   const [currentView, setCurrentView] = useState<"list" | "detail">("list");
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const { toast } = useToast();
+  const [aiServices, setAiServices] = useState<AIServiceSummary[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
 
-  const handleServiceSelect = (service: AIService) => {
+  useEffect(() => {
+    async function fetchServices() {
+      setIsLoading(true);
+      try {
+        const services = await getAIServicesSummary();
+        setAiServices(services);
+      } catch (err) {
+        setError(
+          "AIサービスの取得中にエラーが発生しました。もう一度お試しください。"
+        );
+        console.error("Error fetching AI services:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchServices();
+  }, []);
+
+  const handleServiceSelect = async (service: AIServiceSummary) => {
     try {
-      setCurrentService(service);
+      setIsLoadingDetails(true);
       setCurrentView("detail");
-      if (!selectedServices.some((s) => s.service.id === service.id)) {
-        setSelectedServices((prev) => [
-          ...prev,
-          {
-            service,
-            selectedModels: [],
-            selectedPlans: [],
-          },
-        ]);
+      const serviceDetails = await getAIServiceDetails(service.id);
+      if (serviceDetails) {
+        setCurrentService(serviceDetails);
+        if (!selectedServices.some((s) => s.service.id === serviceDetails.id)) {
+          setSelectedServices((prev) => [
+            ...prev,
+            {
+              service: serviceDetails,
+              selectedModels: [],
+              selectedPlans: [],
+            },
+          ]);
+        }
+      } else {
+        throw new Error("サービスの詳細を取得できませんでした。");
       }
     } catch (err) {
       setError(
         "サービスの選択中にエラーが発生しました。もう一度お試しください。"
       );
       console.error("Error selecting service:", err);
+    } finally {
+      setIsLoadingDetails(false);
     }
   };
 
@@ -430,7 +325,7 @@ export function AiServiceComparison() {
           service.name.toLowerCase().startsWith(searchQuery.toLowerCase()) ||
           service.provider.toLowerCase().startsWith(searchQuery.toLowerCase())
       ),
-    [searchQuery]
+    [searchQuery, aiServices]
   );
 
   const activeServiceSelections = useMemo(
@@ -777,7 +672,7 @@ export function AiServiceComparison() {
     try {
       const state: EncodedState = JSON.parse(decodeURIComponent(encodedState));
       return state.map((s) => ({
-        service: aiServices.find((service) => service.id === s.id)!,
+        service: aiServices.find((service) => service.id === s.id) as AIService,
         selectedModels: s.models.map((m) => ({
           id: m.id,
           inputTokens: m.input,
@@ -823,6 +718,37 @@ export function AiServiceComparison() {
       title: "URLをコピーしまし",
       description: "共有URLがクリップボードにコピーされまた。",
     });
+  };
+
+  const renderModelPricing = (model: AIModel) => {
+    const isGemini = model.name.startsWith("Gemini");
+    const isPerplexityOnline = model.name.includes("-online");
+    return (
+      <>
+        <ul className="list-disc pl-5">
+          <li className="text-sm text-gray-600">
+            入力: ${model.inputPrice} / 1Kトークン
+          </li>
+          <li className="text-sm text-gray-600">
+            出力: ${model.outputPrice} / 1Kトークン
+          </li>
+          <li className="text-sm text-gray-600">
+            最大入力トークン数: {model.contextWindow.toLocaleString()}トークン
+          </li>
+        </ul>
+        {isGemini && (
+          <p className="text-sm text-gray-600">
+            ※ 128,000トークンを超える場合は、料金が変動します
+          </p>
+        )}
+        {isPerplexityOnline && (
+          <p className="text-sm text-gray-600 mt-2">
+            ※
+            オンラインモデルは、上記料金に加えて1000リクエストごとに$5の追加料金がかかります
+          </p>
+        )}
+      </>
+    );
   };
 
   return (
@@ -894,7 +820,11 @@ export function AiServiceComparison() {
           </Alert>
         )}
 
-        {currentView === "detail" ? (
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <p className="text-lg text-gray-600">データを読み込んでいます...</p>
+          </div>
+        ) : currentView === "detail" ? (
           <div>
             <Button
               onClick={() => {
@@ -908,310 +838,353 @@ export function AiServiceComparison() {
               サービス一覧に戻る
             </Button>
 
-            <Card className="mb-6">
-              <CardHeader className="flex flex-row items-center gap-4">
-                <Image
-                  src={currentService?.logoUrl || ""}
-                  alt={`${currentService?.name} logo`}
-                  width={80}
-                  height={80}
-                  className="rounded-full"
-                />
-                <div>
-                  <CardTitle className="text-2xl">
-                    {currentService?.name}
-                  </CardTitle>
-                  <CardDescription className="text-lg text-gray-600">
-                    {currentService?.provider}
-                  </CardDescription>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700 text-lg">
-                  {currentService?.description}
+            {isLoadingDetails ? (
+              <div className="flex justify-center items-center h-64">
+                <p className="text-lg text-gray-600">
+                  サービスの詳細を読み込んでいます...
                 </p>
-              </CardContent>
-            </Card>
-
-            <Tabs defaultValue="plans" className="mb-6">
-              <TabsList className="flex w-full border-b border-gray-200">
-                {["plans", "models"].map((tab) => (
-                  <TabsTrigger
-                    key={tab}
-                    value={tab}
-                    className={cn(
-                      "flex-1 px-4 py-2 text-sm font-medium text-gray-500 transition-all",
-                      "hover:text-gray-700 focus:outline-none",
-                      "data-[state=active]:text-primary data-[state=active]:bg-white data-[state=active]:shadow-sm"
-                    )}
-                  >
-                    {tab === "plans" ? "利用可能なプラン" : "利用可能なモデル"}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-              <TabsContent value="plans" className="pt-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-xl">利用可能なプラン</CardTitle>
-                    <CardDescription>
-                      必要なプランと数量を選択してください
-                    </CardDescription>
+              </div>
+            ) : (
+              <>
+                <Card className="mb-6">
+                  <CardHeader className="flex flex-row items-center gap-4">
+                    <Image
+                      src={currentService?.logoPath || ""}
+                      alt={`${currentService?.name} logo`}
+                      width={80}
+                      height={80}
+                      className="rounded-full"
+                    />
+                    <div>
+                      <CardTitle className="text-2xl">
+                        {currentService?.name}
+                      </CardTitle>
+                      <CardDescription className="text-lg text-gray-600">
+                        {currentService?.provider}
+                      </CardDescription>
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-8">
-                      <div>
-                        <h3 className="text-lg font-semibold mb-4 text-gray-800">
-                          月額プラン
-                        </h3>
-                        {currentService?.plans.map((plan) => {
-                          const serviceSelection = selectedServices.find(
-                            (s) => s.service.id === currentService?.id
-                          );
-                          const selectedPlan =
-                            serviceSelection?.selectedPlans.find(
-                              (p) =>
-                                p.id === plan.id && p.billingCycle === "monthly"
-                            );
-                          return (
-                            <div
-                              key={`${plan.id}-monthly`}
-                              className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6 p-4 bg-gray-50 rounded-lg"
-                            >
-                              <div className="grid gap-1.5 leading-none flex-grow w-full sm:w-auto">
-                                <Label
-                                  htmlFor={`plan-${plan.id}-monthly`}
-                                  className="text-lg font-medium"
-                                >
-                                  {plan.name}
-                                </Label>
-                                <p className="text-sm text-gray-600">
-                                  月額: ${plan.monthlyPrice}/月
-                                </p>
-                                <ul className="text-sm text-gray-600 list-disc list-inside mt-2">
-                                  {plan.features.map((feature, index) => (
-                                    <li key={index}>{feature}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                              <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
-                                <Button
-                                  size="icon"
-                                  variant="outline"
-                                  onClick={() =>
-                                    handlePlanChange(plan.id, -1, "monthly")
-                                  }
-                                  disabled={!selectedPlan}
-                                  className="bg-white"
-                                >
-                                  <Minus className="h-4 w-4" />
-                                  <span className="sr-only">
-                                    {plan.name}月額プランを1つ減らす
-                                  </span>
-                                </Button>
-                                <span className="w-8 text-center text-lg font-semibold">
-                                  {selectedPlan?.quantity || 0}
-                                </span>
-                                <Button
-                                  size="icon"
-                                  variant="outline"
-                                  onClick={() =>
-                                    handlePlanChange(plan.id, 1, "monthly")
-                                  }
-                                  className="bg-white"
-                                >
-                                  <Plus className="h-4 w-4" />
-                                  <span className="sr-only">
-                                    {plan.name}月額プランを1つ増やす
-                                  </span>
-                                </Button>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold mb-4 text-gray-800">
-                          年額プラン
-                        </h3>
-                        {currentService?.plans.map((plan) => {
-                          const serviceSelection = selectedServices.find(
-                            (s) => s.service.id === currentService?.id
-                          );
-                          const selectedPlan =
-                            serviceSelection?.selectedPlans.find(
-                              (p) =>
-                                p.id === plan.id && p.billingCycle === "yearly"
-                            );
-                          return (
-                            <div
-                              key={`${plan.id}-yearly`}
-                              className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6 p-4 bg-gray-50 rounded-lg"
-                            >
-                              <div className="grid gap-1.5 leading-none flex-grow w-full sm:w-auto">
-                                <Label
-                                  htmlFor={`plan-${plan.id}-yearly`}
-                                  className="text-lg font-medium"
-                                >
-                                  {plan.name}
-                                </Label>
-                                <p className="text-sm text-gray-600">
-                                  年額: ${plan.yearlyPrice}/年 (月額換算: $
-                                  {(plan.yearlyPrice / 12).toFixed(2)}/月)
-                                </p>
-                                <ul className="text-sm text-gray-600 list-disc list-inside mt-2">
-                                  {plan.features.map((feature, index) => (
-                                    <li key={index}>{feature}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                              <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
-                                <Button
-                                  size="icon"
-                                  variant="outline"
-                                  onClick={() =>
-                                    handlePlanChange(plan.id, -1, "yearly")
-                                  }
-                                  disabled={!selectedPlan}
-                                  className="bg-white"
-                                >
-                                  <Minus className="h-4 w-4" />
-                                  <span className="sr-only">
-                                    {plan.name}年額プランを1つ減らす
-                                  </span>
-                                </Button>
-                                <span className="w-8 text-center text-lg font-semibold">
-                                  {selectedPlan?.quantity || 0}
-                                </span>
-                                <Button
-                                  size="icon"
-                                  variant="outline"
-                                  onClick={() =>
-                                    handlePlanChange(plan.id, 1, "yearly")
-                                  }
-                                  className="bg-white"
-                                >
-                                  <Plus className="h-4 w-4" />
-                                  <span className="sr-only">
-                                    {plan.name}年額プランを1つ増やす
-                                  </span>
-                                </Button>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
+                    <p className="text-gray-700 text-lg mb-4">
+                      {currentService?.description}
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      {currentService?.planPricingUrl && (
+                        <a
+                          href={currentService.planPricingUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center text-blue-600 hover:text-blue-800"
+                        >
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          料金プラン詳細
+                        </a>
+                      )}
+                      {currentService?.modelPricingUrl && (
+                        <a
+                          href={currentService.modelPricingUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center text-blue-600 hover:text-blue-800"
+                        >
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          モデル料金詳細
+                        </a>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
-              </TabsContent>
-              <TabsContent value="models" className="pt-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-xl">利用可能なモデル</CardTitle>
-                    <CardDescription>
-                      使用したいモデルを選択し、予想使用量を入力してください
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ScrollArea className="h-[600px] pr-4">
-                      {currentService?.models.map((model) => {
-                        const serviceSelection = selectedServices.find(
-                          (s) => s.service.id === currentService?.id
-                        );
-                        const selectedModel =
-                          serviceSelection?.selectedModels.find(
-                            (m) => m.id === model.id
-                          );
-                        const isSelected = !!selectedModel;
 
-                        return (
-                          <div
-                            key={model.id}
-                            className="mb-6 p-4 bg-gray-50 rounded-lg"
-                          >
-                            <div className="flex items-center space-x-4 mb-4">
-                              <Checkbox
-                                id={`model-${model.id}`}
-                                checked={isSelected}
-                                onCheckedChange={() =>
-                                  handleModelToggle(model.id)
-                                }
-                                className="bg-white"
-                              />
-                              <div className="grid gap-1.5 leading-none flex-grow">
-                                <Label
-                                  htmlFor={`model-${model.id}`}
-                                  className="text-lg font-medium"
+                <Tabs defaultValue="plans" className="mb-6">
+                  <TabsList className="flex w-full border-b border-gray-200">
+                    {["plans", "models"].map((tab) => (
+                      <TabsTrigger
+                        key={tab}
+                        value={tab}
+                        className={cn(
+                          "flex-1 px-4 py-2 text-sm font-medium text-gray-500 transition-all",
+                          "hover:text-gray-700 focus:outline-none",
+                          "data-[state=active]:text-primary data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                        )}
+                      >
+                        {tab === "plans"
+                          ? "利用可能なプラン"
+                          : "利用可能なモデル"}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                  <TabsContent value="plans" className="pt-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-xl">
+                          利用可能なプラン
+                        </CardTitle>
+                        <CardDescription>
+                          必要なプランと数量を選択してください
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-8">
+                          <div>
+                            <h3 className="text-lg font-semibold mb-4 text-gray-800">
+                              月額プラン
+                            </h3>
+                            {currentService?.plans.map((plan) => {
+                              const serviceSelection = selectedServices.find(
+                                (s) => s.service.id === currentService?.id
+                              );
+                              const selectedPlan =
+                                serviceSelection?.selectedPlans.find(
+                                  (p) =>
+                                    p.id === plan.id &&
+                                    p.billingCycle === "monthly"
+                                );
+                              return (
+                                <div
+                                  key={`${plan.id}-monthly`}
+                                  className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6 p-4 bg-gray-50 rounded-lg"
                                 >
-                                  {model.name}
-                                </Label>
-                                <p className="text-sm text-gray-600">
-                                  入力: ${model.inputPrice.toFixed(5)}
-                                  /1Kトークン | 出力: $
-                                  {model.outputPrice.toFixed(5)}/1Kトークン |
-                                  最大: {model.maxTokens.toLocaleString()}
-                                  トークン
-                                </p>
-                              </div>
-                            </div>
-                            {isSelected && (
-                              <div className="mt-4 pl-8">
-                                <div className="flex space-x-4">
-                                  <div className="flex-1">
+                                  <div className="grid gap-1.5 leading-none flex-grow w-full sm:w-auto">
                                     <Label
-                                      htmlFor={`input-tokens-${model.id}`}
-                                      className="mb-2 block"
+                                      htmlFor={`plan-${plan.id}-monthly`}
+                                      className="text-lg font-medium"
                                     >
-                                      入力トークン数
+                                      {plan.name}
                                     </Label>
-                                    <Input
-                                      id={`input-tokens-${model.id}`}
-                                      type="text"
-                                      pattern="^[1-9][0-9]*$"
-                                      value={selectedModel.inputTokens}
-                                      onChange={(e) =>
-                                        handleTokenChange(
-                                          model.id,
-                                          "input",
-                                          parseInt(e.target.value) || 0
-                                        )
-                                      }
-                                      className="w-full bg-white"
-                                    />
+                                    <p className="text-sm text-gray-600">
+                                      月額: ${plan.monthlyPrice}/月
+                                    </p>
                                   </div>
-                                  <div className="flex-1">
-                                    <Label
-                                      htmlFor={`output-tokens-${model.id}`}
-                                      className="mb-2 block"
-                                    >
-                                      出力トークン数
-                                    </Label>
-                                    <Input
-                                      id={`output-tokens-${model.id}`}
-                                      type="text"
-                                      pattern="^[1-9][0-9]*$"
-                                      value={selectedModel.outputTokens}
-                                      onChange={(e) =>
-                                        handleTokenChange(
-                                          model.id,
-                                          "output",
-                                          parseInt(e.target.value) || 0
-                                        )
+                                  <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
+                                    <Button
+                                      size="icon"
+                                      variant="outline"
+                                      onClick={() =>
+                                        handlePlanChange(plan.id, -1, "monthly")
                                       }
-                                      className="w-full bg-white"
-                                    />
+                                      disabled={!selectedPlan}
+                                      className="bg-white"
+                                    >
+                                      <Minus className="h-4 w-4" />
+                                      <span className="sr-only">
+                                        {plan.name}月額プランを1つ減らす
+                                      </span>
+                                    </Button>
+                                    <span className="w-8 text-center text-lg font-semibold">
+                                      {selectedPlan?.quantity || 0}
+                                    </span>
+                                    <Button
+                                      size="icon"
+                                      variant="outline"
+                                      onClick={() =>
+                                        handlePlanChange(plan.id, 1, "monthly")
+                                      }
+                                      className="bg-white"
+                                    >
+                                      <Plus className="h-4 w-4" />
+                                      <span className="sr-only">
+                                        {plan.name}月額プランを1つ増やす
+                                      </span>
+                                    </Button>
                                   </div>
                                 </div>
-                              </div>
-                            )}
+                              );
+                            })}
                           </div>
-                        );
-                      })}
-                    </ScrollArea>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
+                          {currentService?.plans.some(
+                            (plan) => plan.yearlyPrice > 0
+                          ) && (
+                            <div>
+                              <h3 className="text-lg font-semibold mb-4 text-gray-800">
+                                年額プラン
+                              </h3>
+                              {currentService?.plans
+                                .filter((plan) => plan.yearlyPrice > 0)
+                                .map((plan) => {
+                                  const serviceSelection =
+                                    selectedServices.find(
+                                      (s) => s.service.id === currentService?.id
+                                    );
+                                  const selectedPlan =
+                                    serviceSelection?.selectedPlans.find(
+                                      (p) =>
+                                        p.id === plan.id &&
+                                        p.billingCycle === "yearly"
+                                    );
+                                  return (
+                                    <div
+                                      key={`${plan.id}-yearly`}
+                                      className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6 p-4 bg-gray-50 rounded-lg"
+                                    >
+                                      <div className="grid gap-1.5 leading-none flex-grow w-full sm:w-auto">
+                                        <Label
+                                          htmlFor={`plan-${plan.id}-yearly`}
+                                          className="text-lg font-medium"
+                                        >
+                                          {plan.name}
+                                        </Label>
+                                        <p className="text-sm text-gray-600">
+                                          年額: ${plan.yearlyPrice}/年
+                                          (月額換算: $
+                                          {(plan.yearlyPrice / 12).toFixed(2)}
+                                          /月)
+                                        </p>
+                                      </div>
+                                      <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
+                                        <Button
+                                          size="icon"
+                                          variant="outline"
+                                          onClick={() =>
+                                            handlePlanChange(
+                                              plan.id,
+                                              -1,
+                                              "yearly"
+                                            )
+                                          }
+                                          disabled={!selectedPlan}
+                                          className="bg-white"
+                                        >
+                                          <Minus className="h-4 w-4" />
+                                          <span className="sr-only">
+                                            {plan.name}年額プランを1つ減らす
+                                          </span>
+                                        </Button>
+                                        <span className="w-8 text-center text-lg font-semibold">
+                                          {selectedPlan?.quantity || 0}
+                                        </span>
+                                        <Button
+                                          size="icon"
+                                          variant="outline"
+                                          onClick={() =>
+                                            handlePlanChange(
+                                              plan.id,
+                                              1,
+                                              "yearly"
+                                            )
+                                          }
+                                          className="bg-white"
+                                        >
+                                          <Plus className="h-4 w-4" />
+                                          <span className="sr-only">
+                                            {plan.name}年額プラン��1つ増やす
+                                          </span>
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                  <TabsContent value="models" className="pt-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-xl">
+                          利用可能なモデル
+                        </CardTitle>
+                        <CardDescription>
+                          使用したいモデルを選択し、予想使用量を入力してください
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <ScrollArea className="h-[600px] pr-4">
+                          {currentService?.models.map((model) => {
+                            const serviceSelection = selectedServices.find(
+                              (s) => s.service.id === currentService?.id
+                            );
+                            const selectedModel =
+                              serviceSelection?.selectedModels.find(
+                                (m) => m.id === model.id
+                              );
+                            const isSelected = !!selectedModel;
+
+                            return (
+                              <div
+                                key={model.id}
+                                className="mb-6 p-4 bg-gray-50 rounded-lg"
+                              >
+                                <div className="flex items-center space-x-4 mb-4">
+                                  <Checkbox
+                                    id={`model-${model.id}`}
+                                    checked={isSelected}
+                                    onCheckedChange={() =>
+                                      handleModelToggle(model.id)
+                                    }
+                                    className="bg-white"
+                                  />
+                                  <div className="grid gap-1.5 leading-none flex-grow">
+                                    <Label
+                                      htmlFor={`model-${model.id}`}
+                                      className="text-lg font-medium"
+                                    >
+                                      {model.name}
+                                    </Label>
+                                    {renderModelPricing(model)}
+                                  </div>
+                                </div>
+                                {isSelected && (
+                                  <div className="mt-4 pl-8">
+                                    <div className="flex space-x-4">
+                                      <div className="flex-1">
+                                        <Label
+                                          htmlFor={`input-tokens-${model.id}`}
+                                          className="mb-2 block"
+                                        >
+                                          入力トークン数
+                                        </Label>
+                                        <Input
+                                          id={`input-tokens-${model.id}`}
+                                          type="text"
+                                          pattern="^[1-9][0-9]*$"
+                                          value={selectedModel.inputTokens}
+                                          onChange={(e) =>
+                                            handleTokenChange(
+                                              model.id,
+                                              "input",
+                                              parseInt(e.target.value) || 0
+                                            )
+                                          }
+                                          className="w-full bg-white"
+                                        />
+                                      </div>
+                                      <div className="flex-1">
+                                        <Label
+                                          htmlFor={`output-tokens-${model.id}`}
+                                          className="mb-2 block"
+                                        >
+                                          出力トークン数
+                                        </Label>
+                                        <Input
+                                          id={`output-tokens-${model.id}`}
+                                          type="text"
+                                          pattern="^[1-9][0-9]*$"
+                                          value={selectedModel.outputTokens}
+                                          onChange={(e) =>
+                                            handleTokenChange(
+                                              model.id,
+                                              "output",
+                                              parseInt(e.target.value) || 0
+                                            )
+                                          }
+                                          className="w-full bg-white"
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </ScrollArea>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </Tabs>
+              </>
+            )}
           </div>
         ) : (
           <>
@@ -1240,7 +1213,7 @@ export function AiServiceComparison() {
                 >
                   <CardHeader className="flex flex-row items-center gap-4">
                     <Image
-                      src={service.logoUrl}
+                      src={service.logoPath}
                       alt={`${service.name} logo`}
                       width={60}
                       height={60}
