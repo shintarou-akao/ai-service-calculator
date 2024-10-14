@@ -56,6 +56,7 @@ import {
   AIServiceSummary,
 } from "@/lib/api";
 import { Header } from "@/components/layout/header";
+import ServiceSkeleton from "@/components/ServiceList/ServiceSkeleton";
 
 type PlanSelection = {
   id: string;
@@ -89,20 +90,6 @@ type EncodedState = {
     cycle: "monthly" | "yearly";
   }[];
 }[];
-
-// ServiceSkeletonコンポーネントを再定義
-const ServiceSkeleton = () => (
-  <div className="bg-white p-6 rounded-lg shadow-md space-y-4">
-    <div className="flex items-center space-x-4">
-      <Skeleton className="h-12 w-16 rounded-full" />
-      <div className="space-y-2">
-        <Skeleton className="h-4 w-[200px]" />
-        <Skeleton className="h-4 w-[150px]" />
-      </div>
-    </div>
-    <Skeleton className="h-20 w-full" />
-  </div>
-);
 
 export function AiServiceComparison() {
   const [selectedServices, setSelectedServices] = useState<ServiceSelection[]>(
