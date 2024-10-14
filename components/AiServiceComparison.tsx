@@ -29,7 +29,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Image from "next/image";
@@ -43,7 +42,6 @@ import {
   ExternalLink,
 } from "lucide-react";
 import React from "react";
-import { useToast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -57,6 +55,7 @@ import {
 import { Header } from "@/components/layout/header";
 import ServiceSkeleton from "@/components/ServiceList/ServiceSkeleton";
 import SearchBar from "@/components/SearchBar/SearchBar";
+import ShareDialog from "@/components/ShareDialog/ShareDialog";
 
 type PlanSelection = {
   id: string;
@@ -104,7 +103,6 @@ export function AiServiceComparison() {
   const [error, setError] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<"list" | "detail">("list");
   const [shareUrl, setShareUrl] = useState<string | null>(null);
-  const { toast } = useToast();
   const [aiServices, setAiServices] = useState<AIServiceSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
@@ -702,15 +700,6 @@ export function AiServiceComparison() {
     return activeServiceSelections.length > 0;
   }, [activeServiceSelections]);
 
-  // URLをコピーするボタンのonClickハンドラを更新
-  const handleCopyUrl = () => {
-    navigator.clipboard.writeText(shareUrl || "");
-    toast({
-      title: "URLをコピーしまし",
-      description: "共有URLがクリップボードにコピーされまた。",
-    });
-  };
-
   const renderModelPricing = (model: AIModel) => {
     const isGemini = model.name.startsWith("Gemini");
     const isPerplexityOnline = model.name.includes("-online");
@@ -1168,20 +1157,7 @@ export function AiServiceComparison() {
         )}
       </main>
 
-      <Dialog open={!!shareUrl} onOpenChange={() => setShareUrl(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>共有URL</DialogTitle>
-            <DialogDescription>
-              以下のURLを共有して、現在の選択状態を他の人と共有できます。
-            </DialogDescription>
-          </DialogHeader>
-          <Input value={shareUrl || ""} readOnly />
-          <DialogFooter>
-            <Button onClick={handleCopyUrl}>URLをコピー</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ShareDialog url={shareUrl} onClose={() => setShareUrl(null)} />
 
       <Toaster />
     </div>
