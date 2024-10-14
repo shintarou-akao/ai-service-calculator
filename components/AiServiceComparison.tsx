@@ -35,7 +35,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Image from "next/image";
 import {
   ChevronLeft,
-  Search,
   Plus,
   Minus,
   Trash2,
@@ -57,6 +56,7 @@ import {
 } from "@/lib/api";
 import { Header } from "@/components/layout/header";
 import ServiceSkeleton from "@/components/ServiceList/ServiceSkeleton";
+import SearchBar from "@/components/SearchBar/SearchBar";
 
 type PlanSelection = {
   id: string;
@@ -763,22 +763,7 @@ export function AiServiceComparison() {
           </Alert>
         )}
 
-        <div className="mb-6">
-          <Label htmlFor="search-services" className="sr-only">
-            サービスを検索
-          </Label>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <Input
-              id="search-services"
-              type="text"
-              placeholder="サービス名または提供元で検索..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 py-2 w-full bg-white border-gray-300 focus:border-gray-400 focus:ring-2 focus:ring-gray-200 rounded-lg shadow-sm transition-all duration-200 ease-in-out"
-            />
-          </div>
-        </div>
+        <SearchBar query={searchQuery} onChange={setSearchQuery} />
 
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
