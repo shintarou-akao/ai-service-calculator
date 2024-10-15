@@ -432,14 +432,25 @@ export function AiServiceComparison() {
           </Alert>
         )}
 
-        <SearchBar query={searchQuery} onChange={setSearchQuery} />
-
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, index) => (
-              <ServiceSkeleton key={index} />
-            ))}
-          </div>
+        {currentView === "list" ? (
+          isLoading ? (
+            <>
+              <SearchBar query={searchQuery} onChange={setSearchQuery} />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, index) => (
+                  <ServiceSkeleton key={index} />
+                ))}
+              </div>
+            </>
+          ) : (
+            <>
+              <SearchBar query={searchQuery} onChange={setSearchQuery} />
+              <ServiceList
+                filteredServices={filteredServices}
+                handleServiceSelect={handleServiceSelect}
+              />
+            </>
+          )
         ) : currentView === "detail" ? (
           <ServiceDetail
             currentService={currentService}
@@ -453,14 +464,7 @@ export function AiServiceComparison() {
               setCurrentView("list");
             }}
           />
-        ) : (
-          currentView === "list" && (
-            <ServiceList
-              filteredServices={filteredServices}
-              handleServiceSelect={handleServiceSelect}
-            />
-          )
-        )}
+        ) : null}
       </main>
 
       <ShareDialog url={shareUrl} onClose={() => setShareUrl(null)} />
