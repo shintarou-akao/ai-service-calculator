@@ -802,7 +802,7 @@ export function AiServiceComparison() {
                                           htmlFor={`input-tokens-${model.id}`}
                                           className="mb-2 block"
                                         >
-                                          力トークン
+                                          入力トークン
                                         </Label>
                                         <Input
                                           id={`input-tokens-${model.id}`}
