@@ -38,7 +38,7 @@ import { Header } from "@/components/layout/header";
 import ServiceSkeleton from "@/components/ServiceList/ServiceSkeleton";
 import SearchBar from "@/components/SearchBar/SearchBar";
 import ShareDialog from "@/components/ShareDialog/ShareDialog";
-import { CostBreakdown } from "./ai-service-comparison/CostBreakdown";
+import { CostBreakdown } from "@/components/CostBreakdown/CostBreakdown";
 
 type PlanSelection = {
   id: string;
