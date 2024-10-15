@@ -30,6 +30,7 @@ import ShareDialog from "@/components/ShareDialog/ShareDialog";
 import { CostBreakdown } from "@/components/CostBreakdown/CostBreakdown";
 import { ModelSelection } from "@/components/ModelSelection/ModelSelection";
 import { PlanSelection } from "@/components/PlanSelection/PlanSelection";
+import { ServiceList } from "@/components/ServiceList/ServiceList";
 
 type PlanSelection = {
   id: string;
@@ -590,34 +591,12 @@ export function AiServiceComparison() {
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredServices.map((service) => (
-              <Card
-                key={service.id}
-                className="cursor-pointer hover:shadow-lg transition-shadow"
-                onClick={() => handleServiceSelect(service)}
-              >
-                <CardHeader className="flex flex-row items-center gap-4">
-                  <Image
-                    src={service.logoPath}
-                    alt={`${service.name} logo`}
-                    width={60}
-                    height={60}
-                    className="rounded-full"
-                  />
-                  <div>
-                    <CardTitle className="text-xl">{service.name}</CardTitle>
-                    <CardDescription className="text-gray-600">
-                      {service.provider}
-                    </CardDescription>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-700">{service.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          currentView === "list" && (
+            <ServiceList
+              filteredServices={filteredServices}
+              handleServiceSelect={handleServiceSelect}
+            />
+          )
         )}
       </main>
 
