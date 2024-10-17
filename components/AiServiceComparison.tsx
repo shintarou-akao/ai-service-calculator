@@ -11,7 +11,7 @@ import {
   AIService,
   AIServiceSummary,
 } from "@/lib/api";
-import { Header } from "@/components/layout/header";
+import { Header } from "@/components/layout/header/Header";
 import ServiceSkeleton from "@/components/ServiceList/ServiceSkeleton";
 import SearchBar from "@/components/SearchBar/SearchBar";
 import ShareDialog from "@/components/ShareDialog/ShareDialog";
