@@ -20,6 +20,7 @@ import { ModelSelection } from "@/components/ModelSelection/ModelSelection";
 import { PlanSelection } from "@/components/PlanSelection/PlanSelection";
 import { ServiceList } from "@/components/ServiceList/ServiceList";
 import { ServiceDetail } from "@/components/ServiceDetail/ServiceDetail";
+import { useHeaderState } from "@/hooks/useHeaderState";
 
 type PlanSelection = {
   id: string;
@@ -60,16 +61,34 @@ export function AiServiceComparison() {
   );
   const [currentService, setCurrentService] = useState<AIService | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [totalApiCost, setTotalApiCost] = useState(0);
-  const [totalPlanCost, setTotalPlanCost] = useState(0);
-  const [totalCost, setTotalCost] = useState(0);
-  const [isBreakdownOpen, setIsBreakdownOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<"list" | "detail">("list");
-  const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [aiServices, setAiServices] = useState<AIServiceSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+
+  const activeServiceSelections = useMemo(
+    () =>
+      selectedServices.filter(
+        (s) =>
+          s.selectedModels.some(
+            (m) => m.inputTokens > 0 || m.outputTokens > 0
+          ) || s.selectedPlans.length > 0
+      ),
+    [selectedServices]
+  );
+
+  const {
+    totalApiCost,
+    totalPlanCost,
+    totalCost,
+    hasSelectedServices,
+    handleShareClick,
+    isBreakdownOpen,
+    setIsBreakdownOpen,
+    shareUrl,
+    setShareUrl,
+  } = useHeaderState(selectedServices, activeServiceSelections);
 
   useEffect(() => {
     async function fetchServices() {
@@ -291,74 +310,6 @@ export function AiServiceComparison() {
     [searchQuery, aiServices]
   );
 
-  const activeServiceSelections = useMemo(
-    () =>
-      selectedServices.filter(
-        (s) =>
-          s.selectedModels.some(
-            (m) => m.inputTokens > 0 || m.outputTokens > 0
-          ) || s.selectedPlans.length > 0
-      ),
-    [selectedServices]
-  );
-
-  useEffect(() => {
-    try {
-      let apiCostSum = 0;
-      let planCostSum = 0;
-
-      activeServiceSelections.forEach(
-        ({ service, selectedModels, selectedPlans }) => {
-          selectedModels.forEach((model) => {
-            const modelInfo = service.models.find((m) => m.id === model.id);
-            if (modelInfo) {
-              const inputCost =
-                (model.inputTokens * modelInfo.inputPrice) / 1000;
-              const outputCost =
-                (model.outputTokens * modelInfo.outputPrice) / 1000;
-              apiCostSum += inputCost + outputCost;
-            }
-          });
-
-          selectedPlans.forEach(({ id, quantity, billingCycle }) => {
-            const plan = service.plans.find((p) => p.id === id);
-            if (plan) {
-              const price =
-                billingCycle === "monthly"
-                  ? plan.monthlyPrice
-                  : plan.yearlyPrice / 12;
-              planCostSum += price * quantity;
-            }
-          });
-        }
-      );
-
-      setTotalApiCost(apiCostSum);
-      setTotalPlanCost(planCostSum);
-      setTotalCost(apiCostSum + planCostSum);
-    } catch (err) {
-      setError("コトの計算中にエラーが発生しました。もう一度お試しください。");
-      console.error("Error calculating costs:", err);
-    }
-  }, [activeServiceSelections]);
-
-  const encodeState = () => {
-    const state = activeServiceSelections.map((s) => ({
-      id: s.service.id,
-      models: s.selectedModels.map((m) => ({
-        id: m.id,
-        input: m.inputTokens,
-        output: m.outputTokens,
-      })),
-      plans: s.selectedPlans.map((p) => ({
-        id: p.id,
-        quantity: p.quantity,
-        cycle: p.billingCycle,
-      })),
-    }));
-    return encodeURIComponent(JSON.stringify(state));
-  };
-
   const decodeState = (encodedState: string): ServiceSelection[] => {
     try {
       const state: EncodedState = JSON.parse(decodeURIComponent(encodedState));
@@ -389,18 +340,6 @@ export function AiServiceComparison() {
       setSelectedServices(decodedState);
     }
   }, []);
-
-  const handleShareClick = () => {
-    const baseUrl = window.location.origin + window.location.pathname;
-    const encodedState = encodeState();
-    const url = `${baseUrl}?state=${encodedState}`;
-    setShareUrl(url);
-  };
-
-  // 選択されているサービスがあるかどうかを確認する関数
-  const hasSelectedServices = useMemo(() => {
-    return activeServiceSelections.length > 0;
-  }, [activeServiceSelections]);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
