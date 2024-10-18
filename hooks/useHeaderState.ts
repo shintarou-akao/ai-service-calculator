@@ -1,5 +1,5 @@
+import { ServiceSelection } from "@/types/types";
 import { useState, useEffect, useMemo } from "react";
-import type { ServiceSelection } from "@/components/AiServiceComparison";
 
 export function useHeaderState(
   selectedServices: ServiceSelection[],

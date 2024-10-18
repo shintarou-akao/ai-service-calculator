@@ -12,10 +12,9 @@ import Image from "next/image";
 import { ChevronLeft, ExternalLink } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { AIService } from "@/lib/api";
 import { ModelSelection } from "@/components/ModelSelection/ModelSelection";
 import { PlanSelection } from "@/components/PlanSelection/PlanSelection";
-import { ServiceSelection } from "@/components/AiServiceComparison";
+import { AIService, ServiceSelection } from "@/types/types";
 
 // Props の型定義
 interface ServiceDetailProps {

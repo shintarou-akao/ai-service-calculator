@@ -1,31 +1,5 @@
+import { AIService, AIServiceSummary } from "@/types/types";
 import { supabase } from "./supabase";
-
-export interface AIModel {
-  id: string;
-  name: string;
-  inputPrice: number;
-  outputPrice: number;
-  contextWindow: number;
-}
-
-export interface AIPlan {
-  id: string;
-  name: string;
-  monthlyPrice: number;
-  yearlyPrice: number;
-}
-
-export interface AIService {
-  id: string;
-  name: string;
-  provider: string;
-  description: string;
-  logoPath: string;
-  planPricingUrl: string;
-  modelPricingUrl: string;
-  models: AIModel[];
-  plans: AIPlan[];
-}
 
 interface ServiceQueryResult {
   id: string;
@@ -37,17 +11,6 @@ interface ServiceQueryResult {
   providers: {
     name: string;
   };
-}
-
-// サービス一覧用の簡略化されたインターフェース
-export interface AIServiceSummary {
-  id: string;
-  name: string;
-  provider: string;
-  description: string;
-  logoPath: string;
-  planPricingUrl: string;
-  modelPricingUrl: string;
 }
 
 // サービス一覧を取得する関数

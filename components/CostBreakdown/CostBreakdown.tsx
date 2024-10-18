@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ServiceSelection } from "@/components/AiServiceComparison";
+import { ServiceSelection } from "@/types/types";
 
 interface CostBreakdownProps {
   isBreakdownOpen: boolean;

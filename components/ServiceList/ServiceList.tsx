@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { AIServiceSummary } from "@/lib/api";
+import { AIServiceSummary } from "@/types/types";
 
 interface ServiceListProps {
   filteredServices: AIServiceSummary[];

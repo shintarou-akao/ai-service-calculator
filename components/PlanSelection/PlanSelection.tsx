@@ -2,8 +2,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Minus, Plus } from "lucide-react";
-import { AIService } from "@/lib/api";
-import { ServiceSelection } from "@/components/AiServiceComparison";
+import { AIService, ServiceSelection } from "@/types/types";
 
 interface PlanSelectionProps {
   currentService: AIService;

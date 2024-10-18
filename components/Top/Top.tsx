@@ -5,55 +5,22 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
-import {
-  getAIServicesSummary,
-  getAIServiceDetails,
-  AIService,
-  AIServiceSummary,
-} from "@/lib/api";
+import { getAIServicesSummary, getAIServiceDetails } from "@/lib/api";
 import { Header } from "@/components/layout/header/Header";
 import ServiceSkeleton from "@/components/ServiceList/ServiceSkeleton";
 import SearchBar from "@/components/SearchBar/SearchBar";
 import ShareDialog from "@/components/ShareDialog/ShareDialog";
 import { CostBreakdown } from "@/components/CostBreakdown/CostBreakdown";
-import { ModelSelection } from "@/components/ModelSelection/ModelSelection";
-import { PlanSelection } from "@/components/PlanSelection/PlanSelection";
 import { ServiceList } from "@/components/ServiceList/ServiceList";
 import { ServiceDetail } from "@/components/ServiceDetail/ServiceDetail";
 import { useHeaderState } from "@/hooks/useHeaderState";
-
-type PlanSelection = {
-  id: string;
-  quantity: number;
-  billingCycle: "monthly" | "yearly";
-};
-
-type ModelSelection = {
-  id: string;
-  inputTokens: number;
-  outputTokens: number;
-};
-
-export type ServiceSelection = {
-  service: AIService;
-  selectedModels: ModelSelection[];
-  selectedPlans: PlanSelection[];
-};
-
-// 新しい型定義を追加
-type EncodedState = {
-  id: string;
-  models: {
-    id: string;
-    input: number;
-    output: number;
-  }[];
-  plans: {
-    id: string;
-    quantity: number;
-    cycle: "monthly" | "yearly";
-  }[];
-}[];
+import {
+  AIService,
+  AIServiceSummary,
+  ServiceSelection,
+  PlanSelection,
+  EncodedState,
+} from "@/types/types";
 
 export function Top() {
   const [selectedServices, setSelectedServices] = useState<ServiceSelection[]>(
