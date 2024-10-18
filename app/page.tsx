@@ -1,6 +1,6 @@
 import React from "react";
-import { AiServiceComparison } from "@/components/AiServiceComparison";
+import { Top } from "@/components/Top/Top";
 
 export default function Home() {
-  return <AiServiceComparison />;
+  return <Top />;
 }

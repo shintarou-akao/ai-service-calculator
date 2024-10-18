@@ -55,7 +55,7 @@ type EncodedState = {
   }[];
 }[];
 
-export function AiServiceComparison() {
+export function Top() {
   const [selectedServices, setSelectedServices] = useState<ServiceSelection[]>(
     []
   );
