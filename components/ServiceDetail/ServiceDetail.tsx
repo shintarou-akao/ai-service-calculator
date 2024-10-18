@@ -290,7 +290,7 @@ export function ServiceDetail({ serviceId }: ServiceDetailProps) {
   if (!currentService) return null;
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
+    <>
       <Header
         showCosts={true}
         totalApiCost={totalApiCost}
@@ -442,6 +442,6 @@ export function ServiceDetail({ serviceId }: ServiceDetailProps) {
       <ShareDialog url={shareUrl} onClose={() => setShareUrl(null)} />
 
       <Toaster />
-    </div>
+    </>
   );
 }

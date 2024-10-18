@@ -173,7 +173,7 @@ export function Top() {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
+    <>
       <Header
         showCosts={true}
         totalApiCost={totalApiCost}
@@ -225,6 +225,6 @@ export function Top() {
       <ShareDialog url={shareUrl} onClose={() => setShareUrl(null)} />
 
       <Toaster />
-    </div>
+    </>
   );
 }

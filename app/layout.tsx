@@ -30,7 +30,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ServiceSelectionProvider>{children}</ServiceSelectionProvider>
+        <ServiceSelectionProvider>
+          <div className="flex flex-col min-h-screen bg-gray-100">
+            {children}
+          </div>
+        </ServiceSelectionProvider>
       </body>
     </html>
   );
