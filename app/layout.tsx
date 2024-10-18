@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ServiceSelectionProvider } from "@/contexts/ServiceSelectionContext";
+import { Header } from "@/components/layout/header/Header";
+import { Toaster } from "@/components/ui/toaster";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -32,7 +34,9 @@ export default function RootLayout({
       >
         <ServiceSelectionProvider>
           <div className="flex flex-col min-h-screen bg-gray-100">
+            <Header />
             {children}
+            <Toaster />
           </div>
         </ServiceSelectionProvider>
       </body>

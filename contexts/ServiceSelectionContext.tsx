@@ -17,7 +17,7 @@ const initialState: State = {
   selectedServices: [],
 };
 
-const ServiceSelectionContext = createContext<
+export const ServiceSelectionContext = createContext<
   { state: State; dispatch: React.Dispatch<Action> } | undefined
 >(undefined);
 

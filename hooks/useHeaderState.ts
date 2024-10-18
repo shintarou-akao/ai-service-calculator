@@ -1,3 +1,5 @@
+"use client";
+
 import { ServiceSelection } from "@/types/types";
 import { useState, useEffect, useMemo } from "react";
 
@@ -66,6 +68,7 @@ export function useHeaderState(
     setIsBreakdownOpen,
     shareUrl,
     setShareUrl,
+    activeServiceSelections,
   };
 }
 

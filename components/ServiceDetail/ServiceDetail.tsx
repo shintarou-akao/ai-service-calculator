@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,11 +20,6 @@ import { AIService, PlanSelection as PlanSelectionType } from "@/types/types";
 import { useRouter } from "next/navigation";
 import { getAIServiceDetails } from "@/lib/api";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Header } from "@/components/layout/header/Header";
-import { useHeaderState } from "@/hooks/useHeaderState";
-import ShareDialog from "@/components/ShareDialog/ShareDialog";
-import { Toaster } from "@/components/ui/toaster";
-import { CostBreakdown } from "@/components/CostBreakdown/CostBreakdown";
 import { useServiceSelection } from "@/contexts/ServiceSelectionContext";
 
 type ServiceDetailProps = {
@@ -41,29 +36,6 @@ export function ServiceDetail({ serviceId }: ServiceDetailProps) {
   const [currentService, setCurrentService] = useState<AIService | null>(null);
   const [isLoadingDetails, setIsLoadingDetails] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const activeServiceSelections = useMemo(
-    () =>
-      selectedServices.filter(
-        (s) =>
-          s.selectedModels.some(
-            (m) => m.inputTokens > 0 || m.outputTokens > 0
-          ) || s.selectedPlans.length > 0
-      ),
-    [selectedServices]
-  );
-
-  const {
-    totalApiCost,
-    totalPlanCost,
-    totalCost,
-    hasSelectedServices,
-    handleShareClick,
-    isBreakdownOpen,
-    setIsBreakdownOpen,
-    shareUrl,
-    setShareUrl,
-  } = useHeaderState(selectedServices, activeServiceSelections);
 
   useEffect(() => {
     async function fetchServiceDetails() {
@@ -243,205 +215,136 @@ export function ServiceDetail({ serviceId }: ServiceDetailProps) {
     }
   };
 
-  const handleRemoveModel = (serviceId: string, modelId: string) => {
-    try {
-      dispatch({
-        type: "UPDATE_SERVICE",
-        payload: {
-          ...selectedServices.find((s) => s.service.id === serviceId)!,
-          selectedModels: selectedServices
-            .find((s) => s.service.id === serviceId)!
-            .selectedModels.filter((m) => m.id !== modelId),
-        },
-      });
-    } catch (err) {
-      setError(
-        "モデルの削除中にエラーが発生しました。もう一度お試しください。"
-      );
-      console.error("Error removing model:", err);
-    }
-  };
-
-  const handleRemovePlan = (
-    serviceId: string,
-    planId: string,
-    billingCycle: "monthly" | "yearly"
-  ) => {
-    try {
-      dispatch({
-        type: "UPDATE_SERVICE",
-        payload: {
-          ...selectedServices.find((s) => s.service.id === serviceId)!,
-          selectedPlans: selectedServices
-            .find((s) => s.service.id === serviceId)!
-            .selectedPlans.filter(
-              (p) => !(p.id === planId && p.billingCycle === billingCycle)
-            ),
-        },
-      });
-    } catch (err) {
-      setError(
-        "プランの削除中にエラーが発生しました。もう一度お試しください。"
-      );
-      console.error("Error removing plan:", err);
-    }
-  };
-
   if (!currentService) return null;
 
   return (
-    <>
-      <Header
-        showCosts={true}
-        totalApiCost={totalApiCost}
-        totalPlanCost={totalPlanCost}
-        totalCost={totalCost}
-        onShareClick={handleShareClick}
-        hasSelectedServices={hasSelectedServices}
-        CostBreakdown={
-          <CostBreakdown
-            isBreakdownOpen={isBreakdownOpen}
-            setIsBreakdownOpen={setIsBreakdownOpen}
-            activeServiceSelections={activeServiceSelections}
-            totalCost={totalCost}
-            handleRemoveModel={handleRemoveModel}
-            handleRemovePlan={handleRemovePlan}
-          />
-        }
-      />
-
-      <main className="flex-grow container mx-auto p-6">
-        {error && (
-          <Alert variant="destructive">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>エラー</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-        {isLoadingDetails ? (
-          <div className="space-y-6">
-            <Skeleton className="h-[200px] w-full rounded-lg" />
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-[300px]" />
-              <Skeleton className="h-4 w-[250px]" />
-            </div>
-            <Skeleton className="h-[400px] w-full rounded-lg" />
+    <main className="flex-grow container mx-auto p-6">
+      {error && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>エラー</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      {isLoadingDetails ? (
+        <div className="space-y-6">
+          <Skeleton className="h-[200px] w-full rounded-lg" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-[300px]" />
+            <Skeleton className="h-4 w-[250px]" />
           </div>
-        ) : (
-          <div>
-            <Button onClick={onBackClick} className="mb-6" variant="ghost">
-              <ChevronLeft className="mr-2 h-4 w-4" />
-              サービス一覧に戻る
-            </Button>
+          <Skeleton className="h-[400px] w-full rounded-lg" />
+        </div>
+      ) : (
+        <div>
+          <Button onClick={onBackClick} className="mb-6" variant="ghost">
+            <ChevronLeft className="mr-2 h-4 w-4" />
+            サービス一覧に戻る
+          </Button>
 
-            <Card className="mb-6">
-              <CardHeader className="flex flex-row items-center gap-4">
-                <Image
-                  src={currentService.logoPath || ""}
-                  alt={`${currentService.name} logo`}
-                  width={80}
-                  height={80}
-                  className="rounded-full"
-                />
-                <div>
-                  <CardTitle className="text-2xl">
-                    {currentService.name}
-                  </CardTitle>
-                  <CardDescription className="text-lg text-gray-600">
-                    {currentService.provider}
-                  </CardDescription>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700 text-lg mb-4">
-                  {currentService.description}
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  {currentService.planPricingUrl && (
-                    <a
-                      href={currentService.planPricingUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center text-blue-600 hover:text-blue-800"
-                    >
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      料金プラン詳細
-                    </a>
-                  )}
-                  {currentService.modelPricingUrl && (
-                    <a
-                      href={currentService.modelPricingUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center text-blue-600 hover:text-blue-800"
-                    >
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      モデル料金詳細
-                    </a>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Tabs defaultValue="plans" className="mb-6">
-              <TabsList className="flex w-full border-b border-gray-200">
-                {["plans", "models"].map((tab) => (
-                  <TabsTrigger
-                    key={tab}
-                    value={tab}
-                    className={cn(
-                      "flex-1 px-4 py-2 text-sm font-medium text-gray-500 transition-all",
-                      "hover:text-gray-700 focus:outline-none",
-                      "data-[state=active]:text-primary data-[state=active]:bg-white data-[state=active]:shadow-sm"
-                    )}
+          <Card className="mb-6">
+            <CardHeader className="flex flex-row items-center gap-4">
+              <Image
+                src={currentService.logoPath || ""}
+                alt={`${currentService.name} logo`}
+                width={80}
+                height={80}
+                className="rounded-full"
+              />
+              <div>
+                <CardTitle className="text-2xl">
+                  {currentService.name}
+                </CardTitle>
+                <CardDescription className="text-lg text-gray-600">
+                  {currentService.provider}
+                </CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-700 text-lg mb-4">
+                {currentService.description}
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                {currentService.planPricingUrl && (
+                  <a
+                    href={currentService.planPricingUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center text-blue-600 hover:text-blue-800"
                   >
-                    {tab === "plans" ? "利用可能なプラン" : "利用可能なモデル"}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-              <TabsContent value="plans" className="pt-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-xl">利用可能なプラン</CardTitle>
-                    <CardDescription>
-                      必要なプランと数量を選択してください
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <PlanSelection
-                      currentService={currentService}
-                      selectedServices={selectedServices}
-                      handlePlanChange={handlePlanChange}
-                    />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              <TabsContent value="models" className="pt-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-xl">利用可能なモデル</CardTitle>
-                    <CardDescription>
-                      使用したいモデルを選択し、予想使用量を入力してください
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ModelSelection
-                      currentService={currentService}
-                      selectedServices={selectedServices}
-                      handleModelToggle={handleModelToggle}
-                      handleTokenChange={handleTokenChange}
-                    />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          </div>
-        )}
-      </main>
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    料金プラン詳細
+                  </a>
+                )}
+                {currentService.modelPricingUrl && (
+                  <a
+                    href={currentService.modelPricingUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center text-blue-600 hover:text-blue-800"
+                  >
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    モデル料金詳細
+                  </a>
+                )}
+              </div>
+            </CardContent>
+          </Card>
 
-      <ShareDialog url={shareUrl} onClose={() => setShareUrl(null)} />
-
-      <Toaster />
-    </>
+          <Tabs defaultValue="plans" className="mb-6">
+            <TabsList className="flex w-full border-b border-gray-200">
+              {["plans", "models"].map((tab) => (
+                <TabsTrigger
+                  key={tab}
+                  value={tab}
+                  className={cn(
+                    "flex-1 px-4 py-2 text-sm font-medium text-gray-500 transition-all",
+                    "hover:text-gray-700 focus:outline-none",
+                    "data-[state=active]:text-primary data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                  )}
+                >
+                  {tab === "plans" ? "利用可能なプラン" : "利用可能なモデル"}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+            <TabsContent value="plans" className="pt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-xl">利用可能なプラン</CardTitle>
+                  <CardDescription>
+                    必要なプランと数量を選択してください
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <PlanSelection
+                    currentService={currentService}
+                    selectedServices={selectedServices}
+                    handlePlanChange={handlePlanChange}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent value="models" className="pt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-xl">利用可能なモデル</CardTitle>
+                  <CardDescription>
+                    使用したいモデルを選択し、予想使用量を入力してください
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ModelSelection
+                    currentService={currentService}
+                    selectedServices={selectedServices}
+                    handleModelToggle={handleModelToggle}
+                    handleTokenChange={handleTokenChange}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+      )}
+    </main>
   );
 }
