@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertTriangle } from "lucide-react";
 import React from "react";
 import { getAIServicesSummary } from "@/lib/api";
 import ServiceSkeleton from "@/components/ServiceList/ServiceSkeleton";
@@ -18,7 +16,6 @@ export function Top() {
   const { dispatch } = useServiceSelection();
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [aiServices, setAiServices] = useState<AIServiceSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -28,11 +25,6 @@ export function Top() {
       try {
         const services = await getAIServicesSummary();
         setAiServices(services);
-      } catch (err) {
-        setError(
-          "AIサービスの取得中にエラーが発生しました。もう一度お試しください。"
-        );
-        console.error("Error fetching AI services:", err);
       } finally {
         setIsLoading(false);
       }
@@ -42,14 +34,7 @@ export function Top() {
   }, []);
 
   const handleServiceSelect = async (service: AIServiceSummary) => {
-    try {
-      router.push(`/service/${service.id}`);
-    } catch (err) {
-      setError(
-        "サービスの選択中にエラーが発生しました。もう一度お試しください。"
-      );
-      console.error("Error selecting service:", err);
-    }
+    router.push(`/service/${service.id}`);
   };
 
   const filteredServices = useMemo(
@@ -92,14 +77,6 @@ export function Top() {
 
   return (
     <main className="flex-grow container mx-auto p-6">
-      {error && (
-        <Alert variant="destructive" className="mb-6">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>エラー</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
       {isLoading ? (
         <>
           <SearchBar query={searchQuery} onChange={setSearchQuery} />

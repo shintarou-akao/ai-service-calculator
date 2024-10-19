@@ -11,13 +11,12 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
-import { AlertTriangle, ChevronLeft, ExternalLink } from "lucide-react";
+import { ChevronLeft, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ModelSelection } from "@/components/ModelSelection/ModelSelection";
 import { PlanSelection } from "@/components/PlanSelection/PlanSelection";
 import { AIService, PlanSelection as PlanSelectionType } from "@/types/types";
 import { useRouter } from "next/navigation";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useServiceSelection } from "@/contexts/ServiceSelectionContext";
 
 type ServiceDetailProps = {
@@ -32,7 +31,6 @@ export function ServiceDetail({ serviceDetails }: ServiceDetailProps) {
   } = useServiceSelection();
 
   const [currentService, setCurrentService] = useState<AIService | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setCurrentService(serviceDetails);
@@ -74,32 +72,25 @@ export function ServiceDetail({ serviceDetails }: ServiceDetailProps) {
     change: number,
     billingCycle: "monthly" | "yearly"
   ) => {
-    try {
-      const currentServiceSelection = selectedServices.find(
-        (s) => s.service.id === currentService?.id
-      );
-      if (!currentServiceSelection) {
-        throw new Error("現在のサービス選択が見つかりません。");
-      }
-      const updatedPlans = updatePlanSelection(
-        currentServiceSelection.selectedPlans,
-        planId,
-        change,
-        billingCycle
-      );
-      dispatch({
-        type: "UPDATE_SERVICE",
-        payload: {
-          ...currentServiceSelection,
-          selectedPlans: updatedPlans,
-        },
-      });
-    } catch (err) {
-      setError(
-        "プランの変更中にエラーが発生しました。もう一度お試しください。"
-      );
-      console.error("Error changing plan:", err);
+    const currentServiceSelection = selectedServices.find(
+      (s) => s.service.id === currentService?.id
+    );
+    if (!currentServiceSelection) {
+      throw new Error("現在のサービス選択が見つかりません。");
     }
+    const updatedPlans = updatePlanSelection(
+      currentServiceSelection.selectedPlans,
+      planId,
+      change,
+      billingCycle
+    );
+    dispatch({
+      type: "UPDATE_SERVICE",
+      payload: {
+        ...currentServiceSelection,
+        selectedPlans: updatedPlans,
+      },
+    });
   };
 
   const updatePlanSelection = (
@@ -130,30 +121,21 @@ export function ServiceDetail({ serviceDetails }: ServiceDetailProps) {
   };
 
   const handleModelToggle = (modelId: string) => {
-    try {
-      const currentServiceSelection = selectedServices.find(
-        (s) => s.service.id === currentService?.id
-      )!;
-      const updatedService = {
-        ...currentServiceSelection,
-        selectedModels: currentServiceSelection.selectedModels.some(
-          (m) => m.id === modelId
-        )
-          ? currentServiceSelection.selectedModels.filter(
-              (m) => m.id !== modelId
-            )
-          : [
-              ...currentServiceSelection.selectedModels,
-              { id: modelId, inputTokens: 0, outputTokens: 0 },
-            ],
-      };
-      dispatch({ type: "UPDATE_SERVICE", payload: updatedService });
-    } catch (err) {
-      setError(
-        "モデルの選択中にエラーが発生しました。もう一度お試しください。"
-      );
-      console.error("Error toggling model:", err);
-    }
+    const currentServiceSelection = selectedServices.find(
+      (s) => s.service.id === currentService?.id
+    )!;
+    const updatedService = {
+      ...currentServiceSelection,
+      selectedModels: currentServiceSelection.selectedModels.some(
+        (m) => m.id === modelId
+      )
+        ? currentServiceSelection.selectedModels.filter((m) => m.id !== modelId)
+        : [
+            ...currentServiceSelection.selectedModels,
+            { id: modelId, inputTokens: 0, outputTokens: 0 },
+          ],
+    };
+    dispatch({ type: "UPDATE_SERVICE", payload: updatedService });
   };
 
   const handleTokenChange = (
@@ -161,47 +143,33 @@ export function ServiceDetail({ serviceDetails }: ServiceDetailProps) {
     type: "input" | "output",
     value: number
   ) => {
-    try {
-      const currentServiceSelection = selectedServices.find(
-        (s) => s.service.id === currentService?.id
-      );
-      if (!currentServiceSelection) {
-        throw new Error("現在のサービス選択が見つかりません。");
-      }
-      const updatedModels = currentServiceSelection.selectedModels.map((m) =>
-        m.id === modelId
-          ? {
-              ...m,
-              [type === "input" ? "inputTokens" : "outputTokens"]: value,
-            }
-          : m
-      );
-      dispatch({
-        type: "UPDATE_SERVICE",
-        payload: {
-          ...currentServiceSelection,
-          selectedModels: updatedModels,
-        },
-      });
-    } catch (err) {
-      setError(
-        "トークン数の変更中にエラーが発生しました。もう一度お試しください。"
-      );
-      console.error("Error changing token count:", err);
+    const currentServiceSelection = selectedServices.find(
+      (s) => s.service.id === currentService?.id
+    );
+    if (!currentServiceSelection) {
+      throw new Error("現在のサービス選択が見つかりません。");
     }
+    const updatedModels = currentServiceSelection.selectedModels.map((m) =>
+      m.id === modelId
+        ? {
+            ...m,
+            [type === "input" ? "inputTokens" : "outputTokens"]: value,
+          }
+        : m
+    );
+    dispatch({
+      type: "UPDATE_SERVICE",
+      payload: {
+        ...currentServiceSelection,
+        selectedModels: updatedModels,
+      },
+    });
   };
 
   if (!currentService) return null;
 
   return (
     <main className="flex-grow container mx-auto p-6">
-      {error && (
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>エラー</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
       <div>
         <Button onClick={onBackClick} className="mb-6" variant="ghost">
           <ChevronLeft className="mr-2 h-4 w-4" />
