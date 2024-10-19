@@ -2,13 +2,15 @@ INSERT INTO providers (name) VALUES
 ('OpenAI'),
 ('Anthropic'),
 ('Google'),
-('Perplexity AI');
+('Perplexity AI'),
+('Anysphere');
 
 INSERT INTO ai_services (provider_id, name, description, logo_path, plan_pricing_url, model_pricing_url) VALUES
 (1, 'ChatGPT', 'OpenAIが開発した対話型AIチャットサービスで、自然な会話を通じて情報提供やクリエイティブな作業を支援', '/images/logos/chatgpt.png', 'https://openai.com/chatgpt/pricing/', 'https://openai.com/api/pricing/'),
 (2, 'Claude', 'Anthropicが開発した生成AIモデルで、自然言語処理に優れ、長文処理やクリエイティブな文章生成に特化', '/images/logos/claude.png', 'https://www.anthropic.com/pricing#claude-ai-plans', 'https://www.anthropic.com/pricing#anthropic-api'),
 (3, 'Gemini', 'Googleが開発したマルチモーダル生成AIモデルで、テキスト、画像、音声を同時に処理し、高精度な情報検索や生成を行うことが可能', '/images/logos/gemini.png', 'https://gemini.google/advanced/', 'https://ai.google.dev/pricing'),
-(4, 'Perplexity', 'Perplexity AIが開発した対話型AIサービスで、最新の情報検索と生成AIを組み合わせて、正確で最新の回答を提供', '/images/logos/perplexity.png', 'https://www.perplexity.ai/pro', 'https://docs.perplexity.ai/guides/pricing');
+(4, 'Perplexity', 'Perplexity AIが開発した対話型AIサービスで、最新の情報検索と生成AIを組み合わせて、正確で最新の回答を提供', '/images/logos/perplexity.png', 'https://www.perplexity.ai/pro', 'https://docs.perplexity.ai/guides/pricing'),
+(5, 'Cursor', 'AIを活用したコーディング支援ツールで、コード生成、バグ修正、リファクタリングなどの機能を提供', '/images/logos/cursor.png', 'https://cursor.sh/pricing', '');
 
 INSERT INTO ai_models (service_id, name, input_price, output_price, context_window) VALUES
 (1, 'gpt-4o', 2.5, 10, 128000),
@@ -35,4 +37,6 @@ INSERT INTO ai_plans (service_id, name, monthly_price, yearly_price) VALUES
 (2, 'Pro', 20, null),
 (2, 'Team', 30, 300),
 (3, 'Advanced', 19.99, null),
-(4, 'Professional', 20, 200);
+(4, 'Professional', 20, 200),
+(5, 'Pro', 20, 192),
+(5, 'Business', 40, 384);
