@@ -4,6 +4,7 @@ import "./globals.css";
 import { ServiceSelectionProvider } from "@/contexts/ServiceSelectionContext";
 import { Header } from "@/components/layout/header/Header";
 import { Toaster } from "@/components/ui/toaster";
+import { Footer } from "@/components/layout/footer/Footer";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -37,6 +38,7 @@ export default function RootLayout({
             <Header />
             {children}
             <Toaster />
+            <Footer />
           </div>
         </ServiceSelectionProvider>
       </body>
