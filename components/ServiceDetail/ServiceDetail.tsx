@@ -265,12 +265,18 @@ export function ServiceDetail({ serviceDetails }: ServiceDetailProps) {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ModelSelection
-                  currentService={currentService}
-                  selectedServices={selectedServices}
-                  handleModelToggle={handleModelToggle}
-                  handleTokenChange={handleTokenChange}
-                />
+                {currentService.models.length > 0 ? (
+                  <ModelSelection
+                    currentService={currentService}
+                    selectedServices={selectedServices}
+                    handleModelToggle={handleModelToggle}
+                    handleTokenChange={handleTokenChange}
+                  />
+                ) : (
+                  <p className="text-gray-500">
+                    利用可能なモデルがありません。
+                  </p>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
