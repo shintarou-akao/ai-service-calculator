@@ -14,6 +14,15 @@ export function useHeaderState(
   const [isBreakdownOpen, setIsBreakdownOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
 
+  const isServiceSelected = useMemo(() => {
+    return activeServiceSelections.some(
+      (serviceSelection) =>
+        serviceSelection.selectedModels.some(
+          (model) => model.inputTokens > 0 || model.outputTokens > 0
+        ) || serviceSelection.selectedPlans.length > 0
+    );
+  }, [activeServiceSelections]);
+
   useEffect(() => {
     let apiCostSum = 0;
     let planCostSum = 0;
@@ -48,11 +57,9 @@ export function useHeaderState(
     setTotalCost(apiCostSum + planCostSum);
   }, [activeServiceSelections]);
 
-  const hasSelectedServices = useMemo(() => {
-    return activeServiceSelections.length > 0;
-  }, [activeServiceSelections]);
-
   const handleShareClick = () => {
+    if (!isServiceSelected) return;
+
     const baseUrl = window.location.origin;
     const encodedState = LZString.compressToEncodedURIComponent(
       JSON.stringify(selectedServices)
@@ -65,7 +72,7 @@ export function useHeaderState(
     totalApiCost,
     totalPlanCost,
     totalCost,
-    hasSelectedServices,
+    hasSelectedServices: isServiceSelected,
     handleShareClick,
     isBreakdownOpen,
     setIsBreakdownOpen,

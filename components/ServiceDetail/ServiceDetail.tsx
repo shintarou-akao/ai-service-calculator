@@ -49,7 +49,6 @@ export function ServiceDetail({ serviceDetails }: ServiceDetailProps) {
 
   useEffect(() => {
     if (currentService) {
-      console.log("Selected services:", selectedServices);
       if (!selectedServices.some((s) => s.service.id === currentService.id)) {
         dispatch({
           type: "ADD_SERVICE",
