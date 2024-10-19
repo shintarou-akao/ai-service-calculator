@@ -3,14 +3,22 @@ INSERT INTO providers (name) VALUES
 ('Anthropic'),
 ('Google'),
 ('Perplexity AI'),
-('Anysphere');
+('Anysphere'),
+('GitHub'),
+('Midjourney'),
+('Vercel'),
+('Notion Labs');
 
 INSERT INTO ai_services (provider_id, name, description, logo_path, plan_pricing_url, model_pricing_url) VALUES
 (1, 'ChatGPT', 'OpenAIが開発した対話型AIチャットサービスで、自然な会話を通じて情報提供やクリエイティブな作業を支援', '/images/logos/chatgpt.png', 'https://openai.com/chatgpt/pricing/', 'https://openai.com/api/pricing/'),
 (2, 'Claude', 'Anthropicが開発した生成AIモデルで、自然言語処理に優れ、長文処理やクリエイティブな文章生成に特化', '/images/logos/claude.png', 'https://www.anthropic.com/pricing#claude-ai-plans', 'https://www.anthropic.com/pricing#anthropic-api'),
 (3, 'Gemini', 'Googleが開発したマルチモーダル生成AIモデルで、テキスト、画像、音声を同時に処理し、高精度な情報検索や生成を行うことが可能', '/images/logos/gemini.png', 'https://gemini.google/advanced/', 'https://ai.google.dev/pricing'),
 (4, 'Perplexity', 'Perplexity AIが開発した対話型AIサービスで、最新の情報検索と生成AIを組み合わせて、正確で最新の回答を提供', '/images/logos/perplexity.png', 'https://www.perplexity.ai/pro', 'https://docs.perplexity.ai/guides/pricing'),
-(5, 'Cursor', 'AIを活用したコーディング支援ツールで、コード生成、バグ修正、リファクタリングなどの機能を提供', '/images/logos/cursor.png', 'https://cursor.sh/pricing', '');
+(5, 'Cursor', 'AIを活用したコーディング支援ツールで、コード生成、バグ修正、リファクタリングなどの機能を提供', '/images/logos/cursor.png', 'https://cursor.sh/pricing', ''),
+(6, 'GitHub Copilot', 'GitHubが開発したAI駆動のコーディングアシスタントで、コード補完、スニペット生成、関数作成などを支援し、開発者の生産性を向上', '/images/logos/github.png', 'https://github.com/features/copilot/plans', ''),
+(7, 'Midjourney', 'AIを使用して高品質な画像を生成するサービスで、テキストプロンプトから独創的なビジュアルを作成可能', '/images/logos/midjourney.png', 'https://docs.midjourney.com/docs/plans', ''),
+(8, 'v0', 'Vercelが開発したAIを活用したUI生成ツールで、自然言語の指示からUIデザインおよびコードを自動生成', '/images/logos/v0.png', 'https://v0.dev/pricing', ''),
+(9, 'Notion AI', 'Notion Labsが開発したAI統合アシスタントで、ドキュメント作成、プロジェクト管理、ナレッジベース構築などを支援', '/images/logos/notion.png', 'https://www.notion.so/ja/pricing', '');
 
 INSERT INTO ai_models (service_id, name, input_price, output_price, context_window) VALUES
 (1, 'gpt-4o', 2.5, 10, 128000),
@@ -39,4 +47,14 @@ INSERT INTO ai_plans (service_id, name, monthly_price, yearly_price) VALUES
 (3, 'Advanced', 19.99, null),
 (4, 'Professional', 20, 200),
 (5, 'Pro', 20, 192),
-(5, 'Business', 40, 384);
+(5, 'Business', 40, 384),
+(6, 'Copilot Individual', 10, 100),
+(6, 'Copilot Business', 19, 228),
+(6, 'Copilot Enterprise', 39, 468),
+(7, 'Basic', 10, 96),
+(7, 'Standard', 30, 288),
+(7, 'Pro', 60, 576),
+(7, 'Mega', 120, 1152),
+(8, 'Premium', 20, 240),
+(8, 'Team', 30, 360),
+(9, 'Notion AI', 10, 96);
