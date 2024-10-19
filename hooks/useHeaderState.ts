@@ -2,6 +2,7 @@
 
 import { ServiceSelection } from "@/types/types";
 import { useState, useEffect, useMemo } from "react";
+import LZString from "lz-string";
 
 export function useHeaderState(
   selectedServices: ServiceSelection[],
@@ -52,8 +53,10 @@ export function useHeaderState(
   }, [activeServiceSelections]);
 
   const handleShareClick = () => {
-    const baseUrl = window.location.origin + window.location.pathname;
-    const encodedState = encodeState(selectedServices);
+    const baseUrl = window.location.origin;
+    const encodedState = LZString.compressToEncodedURIComponent(
+      JSON.stringify(selectedServices)
+    );
     const url = `${baseUrl}?state=${encodedState}`;
     setShareUrl(url);
   };
@@ -70,21 +73,4 @@ export function useHeaderState(
     setShareUrl,
     activeServiceSelections,
   };
-}
-
-function encodeState(selectedServices: ServiceSelection[]): string {
-  const state = selectedServices.map((s) => ({
-    id: s.service.id,
-    models: s.selectedModels.map((m) => ({
-      id: m.id,
-      input: m.inputTokens,
-      output: m.outputTokens,
-    })),
-    plans: s.selectedPlans.map((p) => ({
-      id: p.id,
-      quantity: p.quantity,
-      cycle: p.billingCycle,
-    })),
-  }));
-  return encodeURIComponent(JSON.stringify(state));
 }

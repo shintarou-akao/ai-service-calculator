@@ -52,17 +52,3 @@ export type ServiceSelection = {
   selectedModels: ModelSelection[];
   selectedPlans: PlanSelection[];
 };
-
-export type EncodedState = {
-  id: string;
-  models: {
-    id: string;
-    input: number;
-    output: number;
-  }[];
-  plans: {
-    id: string;
-    quantity: number;
-    cycle: "monthly" | "yearly";
-  }[];
-}[];

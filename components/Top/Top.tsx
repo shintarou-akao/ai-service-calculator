@@ -8,14 +8,10 @@ import { getAIServicesSummary } from "@/lib/api";
 import ServiceSkeleton from "@/components/ServiceList/ServiceSkeleton";
 import SearchBar from "@/components/SearchBar/SearchBar";
 import { ServiceList } from "@/components/ServiceList/ServiceList";
-import {
-  AIService,
-  AIServiceSummary,
-  ServiceSelection,
-  EncodedState,
-} from "@/types/types";
+import { AIServiceSummary, ServiceSelection } from "@/types/types";
 import { useRouter } from "next/navigation";
 import { useServiceSelection } from "@/contexts/ServiceSelectionContext";
+import LZString from "lz-string";
 
 export function Top() {
   const router = useRouter();
@@ -68,19 +64,16 @@ export function Top() {
 
   const decodeState = (encodedState: string): ServiceSelection[] => {
     try {
-      const state: EncodedState = JSON.parse(decodeURIComponent(encodedState));
+      const decompressedState =
+        LZString.decompressFromEncodedURIComponent(encodedState);
+      if (!decompressedState) {
+        throw new Error("Failed to decompress state");
+      }
+      const state: ServiceSelection[] = JSON.parse(decompressedState);
       return state.map((s) => ({
-        service: aiServices.find((service) => service.id === s.id) as AIService,
-        selectedModels: s.models.map((m) => ({
-          id: m.id,
-          inputTokens: m.input,
-          outputTokens: m.output,
-        })),
-        selectedPlans: s.plans.map((p) => ({
-          id: p.id,
-          quantity: p.quantity,
-          billingCycle: p.cycle,
-        })),
+        service: s.service,
+        selectedModels: s.selectedModels,
+        selectedPlans: s.selectedPlans,
       }));
     } catch (error) {
       console.error("Failed to decode state:", error);
