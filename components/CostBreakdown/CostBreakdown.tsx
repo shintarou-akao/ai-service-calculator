@@ -129,10 +129,10 @@ export function CostBreakdown({
                                 if (!modelInfo) return null;
                                 const inputCost =
                                   (model.inputTokens * modelInfo.inputPrice) /
-                                  1000;
+                                  1000000;
                                 const outputCost =
                                   (model.outputTokens * modelInfo.outputPrice) /
-                                  1000;
+                                  1000000;
                                 const totalCost = inputCost + outputCost;
                                 return (
                                   <TableRow key={model.id}>
@@ -281,9 +281,10 @@ export function CostBreakdown({
                         );
                         if (!modelInfo) return sum;
                         const inputCost =
-                          (model.inputTokens * modelInfo.inputPrice) / 1000;
+                          (model.inputTokens * modelInfo.inputPrice) / 1000000;
                         const outputCost =
-                          (model.outputTokens * modelInfo.outputPrice) / 1000;
+                          (model.outputTokens * modelInfo.outputPrice) /
+                          1000000;
                         return sum + inputCost + outputCost;
                       }, 0) +
                       serviceSelection.selectedPlans.reduce(

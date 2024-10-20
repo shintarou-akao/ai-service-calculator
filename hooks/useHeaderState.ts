@@ -32,9 +32,10 @@ export function useHeaderState(
         selectedModels.forEach((model) => {
           const modelInfo = service.models.find((m) => m.id === model.id);
           if (modelInfo) {
-            const inputCost = (model.inputTokens * modelInfo.inputPrice) / 1000;
+            const inputCost =
+              (model.inputTokens * modelInfo.inputPrice) / 1000000;
             const outputCost =
-              (model.outputTokens * modelInfo.outputPrice) / 1000;
+              (model.outputTokens * modelInfo.outputPrice) / 1000000;
             apiCostSum += inputCost + outputCost;
           }
         });
