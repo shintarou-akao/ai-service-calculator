@@ -40,13 +40,62 @@ export function CostBreakdown({
   handleRemoveModel,
   handleRemovePlan,
 }: CostBreakdownProps) {
-  // サービスが選択されているかどうかを確認する関数
   const isServiceSelected = (serviceSelection: ServiceSelection) => {
     return (
       serviceSelection.selectedModels.some(
         (model) => model.inputTokens > 0 || model.outputTokens > 0
       ) || serviceSelection.selectedPlans.length > 0
     );
+  };
+
+  const calculateModelCost = (
+    serviceSelection: ServiceSelection,
+    model: ServiceSelection["selectedModels"][0]
+  ) => {
+    const modelInfo = serviceSelection.service.models.find(
+      (m) => m.id === model.id
+    );
+    if (!modelInfo) return { inputCost: 0, outputCost: 0, totalCost: 0 };
+    const inputCost = (model.inputTokens * modelInfo.inputPrice) / 1000000;
+    const outputCost = (model.outputTokens * modelInfo.outputPrice) / 1000000;
+    const totalCost = inputCost + outputCost;
+    return { inputCost, outputCost, totalCost };
+  };
+
+  const calculatePlanCost = (
+    serviceSelection: ServiceSelection,
+    planSelection: ServiceSelection["selectedPlans"][0]
+  ) => {
+    const plan = serviceSelection.service.plans.find(
+      (p) => p.id === planSelection.id
+    );
+    if (!plan) return { price: 0, totalCost: 0 };
+    const price =
+      planSelection.billingCycle === "monthly"
+        ? plan.monthlyPrice
+        : plan.yearlyPrice / 12;
+    const totalCost = price * planSelection.quantity;
+    return { price, totalCost };
+  };
+
+  const calculateServiceSubtotal = (serviceSelection: ServiceSelection) => {
+    const modelsTotal = serviceSelection.selectedModels.reduce((sum, model) => {
+      const { totalCost } = calculateModelCost(serviceSelection, model);
+      return sum + totalCost;
+    }, 0);
+
+    const plansTotal = serviceSelection.selectedPlans.reduce(
+      (sum, planSelection) => {
+        const { totalCost } = calculatePlanCost(
+          serviceSelection,
+          planSelection
+        );
+        return sum + totalCost;
+      },
+      0
+    );
+
+    return modelsTotal + plansTotal;
   };
 
   return (
@@ -82,9 +131,9 @@ export function CostBreakdown({
                     {serviceSelection.service.name}
                   </h3>
 
-                  {serviceSelection.selectedModels.filter(
+                  {serviceSelection.selectedModels.some(
                     (model) => model.inputTokens > 0 || model.outputTokens > 0
-                  ).length > 0 && (
+                  ) && (
                     <div className="mb-6">
                       <h4 className="text-base md:text-lg font-medium mb-3 text-gray-700">
                         選択されたモデル
@@ -122,18 +171,13 @@ export function CostBreakdown({
                                   model.outputTokens > 0
                               )
                               .map((model) => {
+                                const { inputCost, outputCost, totalCost } =
+                                  calculateModelCost(serviceSelection, model);
                                 const modelInfo =
                                   serviceSelection.service.models.find(
                                     (m) => m.id === model.id
                                   );
                                 if (!modelInfo) return null;
-                                const inputCost =
-                                  (model.inputTokens * modelInfo.inputPrice) /
-                                  1000000;
-                                const outputCost =
-                                  (model.outputTokens * modelInfo.outputPrice) /
-                                  1000000;
-                                const totalCost = inputCost + outputCost;
                                 return (
                                   <TableRow key={model.id}>
                                     <TableCell className="font-medium">
@@ -211,17 +255,15 @@ export function CostBreakdown({
                           <TableBody>
                             {serviceSelection.selectedPlans.map(
                               (planSelection) => {
+                                const { price, totalCost } = calculatePlanCost(
+                                  serviceSelection,
+                                  planSelection
+                                );
                                 const plan =
                                   serviceSelection.service.plans.find(
                                     (p) => p.id === planSelection.id
                                   );
                                 if (!plan) return null;
-                                const price =
-                                  planSelection.billingCycle === "monthly"
-                                    ? plan.monthlyPrice
-                                    : plan.yearlyPrice / 12;
-                                const totalCost =
-                                  price * planSelection.quantity;
                                 return (
                                   <TableRow
                                     key={`${plan.id}-${planSelection.billingCycle}`}
@@ -274,34 +316,7 @@ export function CostBreakdown({
 
                   <div className="text-right font-semibold text-base md:text-lg text-gray-800">
                     サービス小計: $
-                    {(
-                      serviceSelection.selectedModels.reduce((sum, model) => {
-                        const modelInfo = serviceSelection.service.models.find(
-                          (m) => m.id === model.id
-                        );
-                        if (!modelInfo) return sum;
-                        const inputCost =
-                          (model.inputTokens * modelInfo.inputPrice) / 1000000;
-                        const outputCost =
-                          (model.outputTokens * modelInfo.outputPrice) /
-                          1000000;
-                        return sum + inputCost + outputCost;
-                      }, 0) +
-                      serviceSelection.selectedPlans.reduce(
-                        (sum, planSelection) => {
-                          const plan = serviceSelection.service.plans.find(
-                            (p) => p.id === planSelection.id
-                          );
-                          if (!plan) return sum;
-                          const price =
-                            planSelection.billingCycle === "monthly"
-                              ? plan.monthlyPrice
-                              : plan.yearlyPrice / 12;
-                          return sum + price * planSelection.quantity;
-                        },
-                        0
-                      )
-                    ).toFixed(2)}
+                    {calculateServiceSubtotal(serviceSelection).toFixed(2)}
                     /月
                   </div>
                 </div>
