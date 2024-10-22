@@ -5,9 +5,9 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Share2 } from "lucide-react";
 import { useHeaderState } from "@/hooks/useHeaderState";
-import { CostBreakdown } from "@/components/CostBreakdown/CostBreakdown";
+import { CostBreakdown } from "@/components/features/CostBreakdown/CostBreakdown";
 import { useServiceSelection } from "@/contexts/ServiceSelectionContext";
-import ShareDialog from "@/components/ShareDialog/ShareDialog";
+import ShareDialog from "@/components/features/ShareDialog/ShareDialog";
 
 export function Header() {
   const {
