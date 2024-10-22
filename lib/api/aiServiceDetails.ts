@@ -33,9 +33,15 @@ export async function getAIServiceDetails(
     .single<ServiceQueryResult>();
 
   if (serviceError) {
-    throw new Error("AIサービスの取得中にエラーが発生しました");
+    if (serviceError.code === "PGRST116") {
+      // データが見つからない場合
+      return null;
+    }
+    // その他のデータベースエラー
+    throw new Error(
+      `AIサービスの取得中にエラーが発生しました: ${serviceError.message}`
+    );
   }
-
   const { data: models, error: modelsError } = await supabase
     .from("ai_models")
     .select("*")
