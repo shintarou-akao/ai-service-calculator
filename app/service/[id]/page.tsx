@@ -9,19 +9,15 @@ export default async function ServiceDetailPage({
 }: {
   params: { id: string };
 }) {
-  return (
-    <Suspense fallback={<ServiceDetailSkeleton />}>
-      <ServiceDetailContent id={params.id} />
-    </Suspense>
-  );
-}
-
-async function ServiceDetailContent({ id }: { id: string }) {
-  const serviceDetails = await getAIServiceDetails(id);
+  const serviceDetails = await getAIServiceDetails(params.id);
 
   if (!serviceDetails) {
     notFound();
   }
 
-  return <ServiceDetail serviceDetails={serviceDetails} />;
+  return (
+    <Suspense fallback={<ServiceDetailSkeleton />}>
+      <ServiceDetail serviceDetails={serviceDetails} />
+    </Suspense>
+  );
 }
