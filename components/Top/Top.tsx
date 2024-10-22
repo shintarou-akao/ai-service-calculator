@@ -2,8 +2,6 @@
 
 import { useState, useEffect, useMemo } from "react";
 import React from "react";
-import { getAIServicesSummary } from "@/lib/api";
-import ServiceSkeleton from "@/components/ServiceList/ServiceSkeleton";
 import SearchBar from "@/components/SearchBar/SearchBar";
 import { ServiceList } from "@/components/ServiceList/ServiceList";
 import { AIServiceSummary, ServiceSelection } from "@/types/types";
@@ -11,27 +9,15 @@ import { useRouter } from "next/navigation";
 import { useServiceSelection } from "@/contexts/ServiceSelectionContext";
 import LZString from "lz-string";
 
-export function Top() {
+interface TopProps {
+  aiServices: AIServiceSummary[];
+}
+
+export function Top({ aiServices }: TopProps) {
   const router = useRouter();
   const { dispatch } = useServiceSelection();
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [aiServices, setAiServices] = useState<AIServiceSummary[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchServices() {
-      setIsLoading(true);
-      try {
-        const services = await getAIServicesSummary();
-        setAiServices(services);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    fetchServices();
-  }, []);
 
   const handleServiceSelect = async (service: AIServiceSummary) => {
     router.push(`/service/${service.id}`);
@@ -77,28 +63,11 @@ export function Top() {
 
   return (
     <main className="flex-grow container mx-auto p-6">
-      {isLoading ? (
-        <>
-          <SearchBar
-            query={searchQuery}
-            onChange={setSearchQuery}
-            disabled={isLoading}
-          />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(9)].map((_, index) => (
-              <ServiceSkeleton key={index} />
-            ))}
-          </div>
-        </>
-      ) : (
-        <>
-          <SearchBar query={searchQuery} onChange={setSearchQuery} />
-          <ServiceList
-            filteredServices={filteredServices}
-            handleServiceSelect={handleServiceSelect}
-          />
-        </>
-      )}
+      <SearchBar query={searchQuery} onChange={setSearchQuery} />
+      <ServiceList
+        filteredServices={filteredServices}
+        handleServiceSelect={handleServiceSelect}
+      />
     </main>
   );
 }

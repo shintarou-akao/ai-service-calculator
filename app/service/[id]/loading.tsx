@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft } from "lucide-react";
 
-export function ServiceDetailSkeleton() {
+export default function Loading() {
   return (
     <div className="flex-grow container mx-auto p-6">
       <Button className="mb-6" variant="ghost">

@@ -1,5 +1,5 @@
-import { AIService, AIServiceSummary } from "@/types/types";
-import { supabase } from "./supabase";
+import { AIService } from "@/types/types";
+import { supabase } from "@/lib/supabase";
 
 interface ServiceQueryResult {
   id: string;
@@ -13,39 +13,6 @@ interface ServiceQueryResult {
   };
 }
 
-// サービス一覧を取得する関数
-export async function getAIServicesSummary(): Promise<AIServiceSummary[]> {
-  const { data: services, error: servicesError } = await supabase
-    .from("ai_services")
-    .select(
-      `
-      id,
-      name,
-      description,
-      logo_path,
-      plan_pricing_url,
-      model_pricing_url,
-      providers (name)
-    `
-    )
-    .returns<ServiceQueryResult[]>();
-
-  if (servicesError) {
-    throw new Error("AIサービスの取得中にエラーが発生しました");
-  }
-
-  return services.map((service) => ({
-    id: service.id,
-    name: service.name,
-    provider: service.providers.name,
-    description: service.description,
-    logoPath: service.logo_path,
-    planPricingUrl: service.plan_pricing_url,
-    modelPricingUrl: service.model_pricing_url,
-  }));
-}
-
-// 特定のサービスの詳細を取得する関数
 export async function getAIServiceDetails(
   serviceId: string
 ): Promise<AIService | null> {
@@ -79,10 +46,12 @@ export async function getAIServiceDetails(
     .select("*")
     .eq("service_id", serviceId);
 
-  if (modelsError)
-    console.error("モデルの取得中にエラーが発生しました:", modelsError);
-  if (plansError)
-    console.error("プランの取得中にエラーが発生しました:", plansError);
+  if (modelsError) {
+    throw new Error("モデルの取得中にエラーが発生しました");
+  }
+  if (plansError) {
+    throw new Error("プランの取得中にエラーが発生しました");
+  }
 
   return {
     id: service.id,

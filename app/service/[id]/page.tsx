@@ -1,7 +1,5 @@
-import { Suspense } from "react";
 import { ServiceDetail } from "@/components/ServiceDetail/ServiceDetail";
-import { ServiceDetailSkeleton } from "@/components/ServiceDetail/ServiceDetailSkeleton";
-import { getAIServiceDetails } from "@/lib/api";
+import { getAIServiceDetails } from "@/lib/api/aiServiceDetails";
 import { notFound } from "next/navigation";
 
 export default async function ServiceDetailPage({
@@ -15,9 +13,5 @@ export default async function ServiceDetailPage({
     notFound();
   }
 
-  return (
-    <Suspense fallback={<ServiceDetailSkeleton />}>
-      <ServiceDetail serviceDetails={serviceDetails} />
-    </Suspense>
-  );
+  return <ServiceDetail serviceDetails={serviceDetails} />;
 }
