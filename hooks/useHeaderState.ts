@@ -3,6 +3,7 @@
 import { ServiceSelection } from "@/types/types";
 import { useState, useEffect, useMemo } from "react";
 import LZString from "lz-string";
+import { TOKEN_DIVISOR } from "@/lib/constants";
 
 export function useHeaderState(
   selectedServices: ServiceSelection[],
@@ -33,9 +34,9 @@ export function useHeaderState(
           const modelInfo = service.models.find((m) => m.id === model.id);
           if (modelInfo) {
             const inputCost =
-              (model.inputTokens * modelInfo.inputPrice) / 1000000;
+              (model.inputTokens * modelInfo.inputPrice) / TOKEN_DIVISOR;
             const outputCost =
-              (model.outputTokens * modelInfo.outputPrice) / 1000000;
+              (model.outputTokens * modelInfo.outputPrice) / TOKEN_DIVISOR;
             apiCostSum += inputCost + outputCost;
           }
         });

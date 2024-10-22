@@ -18,6 +18,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ServiceSelection } from "@/types/types";
+import { TOKEN_DIVISOR } from "@/lib/constants";
 
 interface CostBreakdownProps {
   isBreakdownOpen: boolean;
@@ -56,8 +57,10 @@ export function CostBreakdown({
       (m) => m.id === model.id
     );
     if (!modelInfo) return { inputCost: 0, outputCost: 0, totalCost: 0 };
-    const inputCost = (model.inputTokens * modelInfo.inputPrice) / 1000000;
-    const outputCost = (model.outputTokens * modelInfo.outputPrice) / 1000000;
+    const inputCost =
+      (model.inputTokens * modelInfo.inputPrice) / TOKEN_DIVISOR;
+    const outputCost =
+      (model.outputTokens * modelInfo.outputPrice) / TOKEN_DIVISOR;
     const totalCost = inputCost + outputCost;
     return { inputCost, outputCost, totalCost };
   };
