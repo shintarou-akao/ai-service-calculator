@@ -1,5 +1,5 @@
 import { AIService } from "@/types/types";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/db/supabase";
 
 interface ServiceQueryResult {
   id: string;
