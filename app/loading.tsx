@@ -1,4 +1,4 @@
-import SearchBar from "@/components/SearchBar/SearchBar";
+import SearchBar from "@/components/features/SearchBar/SearchBar";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {

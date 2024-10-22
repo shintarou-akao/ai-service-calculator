@@ -1,4 +1,4 @@
-import { ServiceDetail } from "@/components/ServiceDetail/ServiceDetail";
+import { ServiceDetail } from "@/components/features/ServiceDetail/ServiceDetail";
 import { getAIServiceDetails } from "@/lib/api/aiServiceDetails";
 import { notFound } from "next/navigation";
 
