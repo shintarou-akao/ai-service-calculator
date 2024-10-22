@@ -31,8 +31,7 @@ export async function getAIServicesSummary(): Promise<AIServiceSummary[]> {
     .returns<ServiceQueryResult[]>();
 
   if (servicesError) {
-    console.error("AIサービスの取得中にエラーが発生しました:", servicesError);
-    return [];
+    throw new Error("AIサービスの取得中にエラーが発生しました");
   }
 
   return services.map((service) => ({
@@ -67,8 +66,7 @@ export async function getAIServiceDetails(
     .single<ServiceQueryResult>();
 
   if (serviceError) {
-    console.error("AIサービスの取得中にエラーが発生しました:", serviceError);
-    return null;
+    throw new Error("AIサービスの取得中にエラーが発生しました");
   }
 
   const { data: models, error: modelsError } = await supabase
