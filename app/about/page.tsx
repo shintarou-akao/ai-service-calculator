@@ -14,12 +14,8 @@ export default function AboutPage() {
           <div className="space-y-4">
             <p>
               AI Service
-              Calculatorは、様々なAIサービスの料金プランやAPIの利用料金を簡単に計算し、比較できるWebアプリケーションです。
+              Calculatorは、様々なAIサービスの料金プランやAPIの利用料金のざっくりとした見積もりを行うことができるWebアプリケーションです。
             </p>
-            <p>
-              複数のAIサービスやAPIモデルのプランを選択し、予想使用量を入力することで、総額のざっくりとした見積もりを自動的に計算します。これにより、ユーザーは各AIサービスの概算コストを比較することができます。
-            </p>
-            <p></p>
             <p className="text-sm text-gray-600">
               ※実際の料金は各サービスの公式サイトで確認することをお勧めします。
             </p>
