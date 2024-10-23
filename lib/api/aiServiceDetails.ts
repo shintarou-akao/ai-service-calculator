@@ -1,5 +1,5 @@
 import { AIService } from "@/types/types";
-import { supabase } from "@/lib/db/supabase";
+import { createClient } from "@/utils/supabase/server";
 
 interface ServiceQueryResult {
   id: string;
@@ -16,6 +16,7 @@ interface ServiceQueryResult {
 export async function getAIServiceDetails(
   serviceId: string
 ): Promise<AIService | null> {
+  const supabase = createClient();
   const { data: service, error: serviceError } = await supabase
     .from("ai_services")
     .select(
