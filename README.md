@@ -44,7 +44,7 @@ supabase start
 5. `.env.local` ファイルを作成し、環境変数の値を設定します：
 
 ```bash
-cp .env .env.local
+cp .env.example .env.local
 ```
 
 6. 開発サーバーを起動します：
