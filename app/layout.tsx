@@ -44,11 +44,6 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
   },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-  },
 };
 
 export default function RootLayout({
