@@ -16,6 +16,10 @@ interface ServiceQueryResult {
 export async function getAIServiceDetails(
   serviceId: string
 ): Promise<AIService | null> {
+  if (isNaN(Number(serviceId))) {
+    return null;
+  }
+
   const supabase = createClient();
   const { data: service, error: serviceError } = await supabase
     .from("ai_services")
