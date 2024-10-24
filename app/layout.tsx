@@ -18,9 +18,37 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "AI Service Calculator",
+  title: {
+    default: "AI Service Calculator - AIサービス料金計算ツール",
+    template: "AI Service Calculator - %s",
+  },
   description:
-    "AIサービスの料金プランやAPIの料金を簡単に計算できるWebアプリケーション。複数のAIサービスやAPIモデルのプランを選んで、総額を自動的に計算・比較できます。",
+    "AIサービスの料金プランやAPIの料金を簡単に計算できるサイト。複数のAIサービスやAPIモデルのプランを選んで、総額を自動的に計算し、共有できます。",
+  keywords: ["AI", "AIサービス", "料金計算", "API"],
+  openGraph: {
+    type: "website",
+    locale: "ja_JP",
+    // TODO: URLの設定
+    title: "AI Service Calculator - AIサービス料金計算ツール",
+    description: "AIサービスの料金プランやAPIの料金を簡単に計算できるサイト。",
+    siteName: "AI Service Calculator",
+    images: [
+      {
+        url: "/images/og.png",
+        width: 1200,
+        height: 630,
+        alt: "AI Service Calculator OGイメージ",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+  },
 };
 
 export default function RootLayout({

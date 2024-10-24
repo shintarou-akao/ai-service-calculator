@@ -1,5 +1,10 @@
 import React from "react";
+import { Metadata } from "next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+export const metadata: Metadata = {
+  title: "プライバシーポリシー",
+};
 
 export default function PrivacyPolicyPage() {
   return (
