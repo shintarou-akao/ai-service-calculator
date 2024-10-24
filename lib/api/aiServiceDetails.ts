@@ -12,6 +12,19 @@ interface ServiceQueryResult {
   providers: {
     name: string;
   };
+  ai_models: {
+    id: string;
+    name: string;
+    input_price: number;
+    output_price: number;
+    context_window: number;
+  }[];
+  ai_plans: {
+    id: string;
+    name: string;
+    monthly_price: number;
+    yearly_price: number;
+  }[];
 }
 
 export const getAIServiceDetails = cache(async function (
@@ -32,7 +45,20 @@ export const getAIServiceDetails = cache(async function (
       logo_path,
       plan_pricing_url,
       model_pricing_url,
-      providers (name)
+      providers (name),
+      ai_models (
+        id,
+        name,
+        input_price,
+        output_price,
+        context_window
+      ),
+      ai_plans (
+        id,
+        name,
+        monthly_price,
+        yearly_price
+      )
     `
     )
     .eq("id", serviceId)
@@ -44,22 +70,6 @@ export const getAIServiceDetails = cache(async function (
     }
     throw new Error(`AIサービスの取得中にエラーが発生しました`);
   }
-  const { data: models, error: modelsError } = await supabase
-    .from("ai_models")
-    .select("*")
-    .eq("service_id", serviceId);
-
-  const { data: plans, error: plansError } = await supabase
-    .from("ai_plans")
-    .select("*")
-    .eq("service_id", serviceId);
-
-  if (modelsError) {
-    throw new Error("モデルの取得中にエラーが発生しました");
-  }
-  if (plansError) {
-    throw new Error("プランの取得中にエラーが発生しました");
-  }
 
   return {
     id: service.id,
@@ -69,20 +79,18 @@ export const getAIServiceDetails = cache(async function (
     logoPath: service.logo_path,
     planPricingUrl: service.plan_pricing_url,
     modelPricingUrl: service.model_pricing_url,
-    models:
-      models?.map((model) => ({
-        id: model.id,
-        name: model.name,
-        inputPrice: model.input_price,
-        outputPrice: model.output_price,
-        contextWindow: model.context_window,
-      })) || [],
-    plans:
-      plans?.map((plan) => ({
-        id: plan.id,
-        name: plan.name,
-        monthlyPrice: plan.monthly_price,
-        yearlyPrice: plan.yearly_price,
-      })) || [],
+    models: service.ai_models.map((model) => ({
+      id: model.id,
+      name: model.name,
+      inputPrice: model.input_price,
+      outputPrice: model.output_price,
+      contextWindow: model.context_window,
+    })),
+    plans: service.ai_plans.map((plan) => ({
+      id: plan.id,
+      name: plan.name,
+      monthlyPrice: plan.monthly_price,
+      yearlyPrice: plan.yearly_price,
+    })),
   };
 });
