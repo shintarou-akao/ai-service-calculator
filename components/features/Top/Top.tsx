@@ -59,6 +59,7 @@ export function Top({ aiServices }: TopProps) {
       const decodedState = decodeState(stateParam);
       dispatch({ type: "SET_SELECTED_SERVICES", payload: decodedState });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
