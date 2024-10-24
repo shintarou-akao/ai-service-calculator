@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useReducer, ReactNode } from "react";
-import { ServiceSelection } from "@/types/types";
+import { ServiceSelection } from "@/types";
 
 type State = {
   selectedServices: ServiceSelection[];

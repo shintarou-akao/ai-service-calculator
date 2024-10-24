@@ -15,7 +15,7 @@ import { ChevronLeft, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ModelSelection } from "@/components/features/ModelSelection/ModelSelection";
 import { PlanSelection } from "@/components/features/PlanSelection/PlanSelection";
-import { AIService, PlanSelection as PlanSelectionType } from "@/types/types";
+import { AIService, PlanSelection as PlanSelectionType } from "@/types";
 import { useRouter } from "next/navigation";
 import { useServiceSelection } from "@/contexts/ServiceSelectionContext";
 

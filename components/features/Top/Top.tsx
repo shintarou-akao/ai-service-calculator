@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import React from "react";
 import SearchBar from "@/components/features/SearchBar/SearchBar";
 import { ServiceList } from "@/components/features/ServiceList/ServiceList";
-import { AIServiceSummary, ServiceSelection } from "@/types/types";
+import { AIServiceSummary, ServiceSelection } from "@/types";
 import { useRouter } from "next/navigation";
 import { useServiceSelection } from "@/contexts/ServiceSelectionContext";
 import LZString from "lz-string";

@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ServiceSelection } from "@/types/types";
+import { ServiceSelection } from "@/types";
 import { TOKEN_DIVISOR } from "@/lib/constants";
 
 interface CostBreakdownProps {

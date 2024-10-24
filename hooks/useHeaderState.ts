@@ -1,6 +1,6 @@
 "use client";
 
-import { ServiceSelection } from "@/types/types";
+import { ServiceSelection } from "@/types";
 import { useState, useEffect, useMemo } from "react";
 import LZString from "lz-string";
 import { TOKEN_DIVISOR } from "@/lib/constants";

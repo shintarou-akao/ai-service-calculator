@@ -3,7 +3,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { AIModel, AIService, ServiceSelection } from "@/types/types";
+import { AIModel, AIService, ServiceSelection } from "@/types";
 
 interface ModelSelectionProps {
   currentService: AIService;

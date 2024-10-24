@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { AIService } from "@/types/types";
+import { AIService } from "@/types";
 import { createClient } from "@/utils/supabase/server";
 
 interface ServiceQueryResult {
