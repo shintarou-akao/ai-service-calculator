@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { AIServiceSummary } from "@/types/types";
 import { createClient } from "@/utils/supabase/server";
 
@@ -13,12 +14,13 @@ interface ServiceQueryResult {
   };
 }
 
-export async function getAIServicesSummary(): Promise<AIServiceSummary[]> {
-  const supabase = createClient();
-  const { data: services, error: servicesError } = await supabase
-    .from("ai_services")
-    .select(
-      `
+export const getAIServicesSummary = cache(
+  async (): Promise<AIServiceSummary[]> => {
+    const supabase = createClient();
+    const { data: services, error: servicesError } = await supabase
+      .from("ai_services")
+      .select(
+        `
       id,
       name,
       description,
@@ -27,20 +29,21 @@ export async function getAIServicesSummary(): Promise<AIServiceSummary[]> {
       model_pricing_url,
       providers (name)
     `
-    )
-    .returns<ServiceQueryResult[]>();
+      )
+      .returns<ServiceQueryResult[]>();
 
-  if (servicesError) {
-    throw new Error("AIサービスの取得中にエラーが発生しました");
+    if (servicesError) {
+      throw new Error("AIサービスの取得中にエラーが発生しました");
+    }
+
+    return services.map((service) => ({
+      id: service.id,
+      name: service.name,
+      provider: service.providers.name,
+      description: service.description,
+      logoPath: service.logo_path,
+      planPricingUrl: service.plan_pricing_url,
+      modelPricingUrl: service.model_pricing_url,
+    }));
   }
-
-  return services.map((service) => ({
-    id: service.id,
-    name: service.name,
-    provider: service.providers.name,
-    description: service.description,
-    logoPath: service.logo_path,
-    planPricingUrl: service.plan_pricing_url,
-    modelPricingUrl: service.model_pricing_url,
-  }));
-}
+);

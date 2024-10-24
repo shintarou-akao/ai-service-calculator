@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { AIService } from "@/types/types";
 import { createClient } from "@/utils/supabase/server";
 
@@ -13,7 +14,7 @@ interface ServiceQueryResult {
   };
 }
 
-export async function getAIServiceDetails(
+export const getAIServiceDetails = cache(async function (
   serviceId: string
 ): Promise<AIService | null> {
   if (isNaN(Number(serviceId))) {
@@ -88,4 +89,4 @@ export async function getAIServiceDetails(
         yearlyPrice: plan.yearly_price,
       })) || [],
   };
-}
+});
