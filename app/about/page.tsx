@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function AboutPage() {
   return (
-    <main className="flex-grow container mx-auto p-6">
+    <>
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="text-2xl">
@@ -37,6 +37,6 @@ export default function AboutPage() {
           </ul>
         </CardContent>
       </Card>
-    </main>
+    </>
   );
 }

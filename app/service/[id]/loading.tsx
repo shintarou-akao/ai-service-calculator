@@ -5,7 +5,7 @@ import { ChevronLeft } from "lucide-react";
 
 export default function Loading() {
   return (
-    <div className="flex-grow container mx-auto p-6">
+    <>
       <Button className="mb-6" variant="ghost">
         <ChevronLeft className="mr-2 h-4 w-4" />
         サービス一覧に戻る
@@ -45,6 +45,6 @@ export default function Loading() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </>
   );
 }

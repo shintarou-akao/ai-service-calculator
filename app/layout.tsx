@@ -31,15 +31,13 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-100 flex flex-col min-h-screen`}
       >
         <ServiceSelectionProvider>
-          <div className="flex flex-col min-h-screen bg-gray-100">
-            <Header />
-            {children}
-            <Toaster />
-            <Footer />
-          </div>
+          <Header />
+          <main className="flex-grow container mx-auto p-6">{children}</main>
+          <Toaster />
+          <Footer />
         </ServiceSelectionProvider>
       </body>
     </html>

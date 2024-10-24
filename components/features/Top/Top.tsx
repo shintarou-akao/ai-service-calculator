@@ -62,12 +62,12 @@ export function Top({ aiServices }: TopProps) {
   }, []);
 
   return (
-    <main className="flex-grow container mx-auto p-6">
+    <>
       <SearchBar query={searchQuery} onChange={setSearchQuery} />
       <ServiceList
         filteredServices={filteredServices}
         handleServiceSelect={handleServiceSelect}
       />
-    </main>
+    </>
   );
 }
