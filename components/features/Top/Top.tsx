@@ -5,7 +5,7 @@ import React from "react";
 import SearchBar from "@/components/features/SearchBar/SearchBar";
 import { ServiceList } from "@/components/features/ServiceList/ServiceList";
 import { AIServiceSummary, ServiceSelection } from "@/types";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useServiceSelection } from "@/contexts/ServiceSelectionContext";
 import LZString from "lz-string";
 
@@ -15,6 +15,7 @@ interface TopProps {
 
 export function Top({ aiServices }: TopProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { dispatch } = useServiceSelection();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -53,14 +54,13 @@ export function Top({ aiServices }: TopProps) {
   };
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const stateParam = urlParams.get("state");
+    const stateParam = searchParams.get("state");
     if (stateParam) {
       const decodedState = decodeState(stateParam);
       dispatch({ type: "SET_SELECTED_SERVICES", payload: decodedState });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [searchParams]);
 
   return (
     <>
